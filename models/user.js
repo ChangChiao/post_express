@@ -2,13 +2,23 @@ const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema({
   userName: {
     type: String,
-    required: [true, "用戶名稱未填寫"],
+  },
+  account: {
+    type: String,
+    required: [true, "用戶帳號未填寫"],
+    unique: true,
+    select: false,
   },
   password: {
+    required: [true, "用戶密碼未填寫"],
     type: String,
+    unique: true,
+    select: false,
   },
-  nickName: {
+  googleUUID: {
     type: String,
+    unique: true,
+    select: false,
   },
   gender: {
     type: Number,
@@ -19,8 +29,7 @@ const userSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now(),
-    // select: false
+    default: Date.now,
   },
 });
 

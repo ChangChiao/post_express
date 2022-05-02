@@ -2,21 +2,28 @@ const { json } = require('express');
 const express = require('express');
 const router = express.Router();
 const Posts = require("../models/posts");
-
+const User = require("../models/user");
 router.get('/', async function(req, res, next) {
-    const postList = await Posts.find();
-    res.status(200).json({message:"success", posts:postList})
+    try {
+        const postList = await Posts.find().populate({
+            path: "user",
+            select: "userName gender"
+        });
+        res.status(200).json({message:"success", posts:postList})
+    } catch (error) {
+        console.log(error, "error");
+    }
 });
 
 router.post('/', async function(req, res, next) {
     try {
-        const { content, image, name, likes } = req.body
-        if(name === undefined || content === undefined){
+        const { content, image, likes, user } = req.body
+        if(user === undefined || content === undefined){
             res.status(400).send("參數有缺");
             return
         }
         const newPost =  await Posts.create({
-            content, image, name, likes,
+            content, image, user, likes
         })
         res.status(200).json({message:"success", posts: newPost})
     } catch (error) {
