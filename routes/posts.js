@@ -20,7 +20,7 @@ router.get("/", async function (req, res, next) {
 
 router.post("/", async function (req, res, next) {
   try {
-    const { content, image, likes, user } = req.body;
+    const { content, image, cover, user } = req.body;
     if (user === undefined || content === undefined) {
       res.status(400).json({ message: "參數有缺", status: "fail" });
       return;
@@ -29,7 +29,7 @@ router.post("/", async function (req, res, next) {
       content,
       image,
       user,
-      likes,
+      cover,
     });
     res
       .status(200)
