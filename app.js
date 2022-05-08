@@ -5,8 +5,9 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var cors = require("cors");
 const dotenv = require("dotenv");
-const errorList = require('./service/erroList')
+const errorList = require("./service/erroList");
 dotenv.config({ path: "./config.env" });
+console.log('2222');
 const DB = process.env.DATABASE.replace(
   "<password>",
   process.env.DATABASE_PASSWORD
@@ -42,7 +43,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/posts", postsRouter);
-
+app.use("/posts", postsRouter);
 //404
 app.use((req, res, next) => {
   res.status(404).json({
@@ -84,13 +85,13 @@ const resErrorDev = (error, res) => {
 //error
 app.use((error, req, res, next) => {
   error.statusCode = error.statusCode || 500;
-  if (process.env.NODE_ENV === 'dev'){
+  if (process.env.NODE_ENV === "dev") {
     return resErrorDev(error, res);
   }
-  if(error.name === 'ValidationError'){
+  if (error.name === "ValidationError") {
     error.message = errorList[error.name];
     err.isOperational = true;
-    return resErrorProd(err, res)
+    return resErrorProd(err, res);
   }
   resErrorPrd(error, res);
 });
