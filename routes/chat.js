@@ -16,3 +16,11 @@ router.get("/", (req, res) => {
   res.status(200).json({ msg: "server up and running" });
 });
 module.exports = router;
+const io = require("../bin/www").io;
+
+io.on("connection", (socket) => {
+  io.emit("join", 'hi!!');
+//   socket.on("chat message", (msg) => {
+//     io.emit("chat message", msg);
+//   });
+});

@@ -7,6 +7,7 @@ var cors = require("cors");
 const dotenv = require("dotenv");
 const errorList = require("./service/erroList");
 dotenv.config({ path: "./config.env" });
+console.log('2222');
 const DB = process.env.DATABASE.replace(
   "<password>",
   process.env.DATABASE_PASSWORD
