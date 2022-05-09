@@ -47,19 +47,17 @@ const io = new Server(server, {
   path: "/socket.io/",
   cors: {
     origin: "*",
-    // origin: "http://localhost:8080",
-    // methods: ["GET", "POST"]
   }
 });
-exports.io = io;
+// exports.io = io;
 
-io.on("connection", (socket) => {
-  console.log("socket!!!!");
-  io.emit("join", "hi!!");
-  //   socket.on("chat message", (msg) => {
-  //     io.emit("chat message", msg);
-  //   });
-});
+// io.on("connection", (socket) => {
+//   console.log("socket!!!!");
+//   io.emit("join", "hi!!");
+//   //   socket.on("chat message", (msg) => {
+//   //     io.emit("chat message", msg);
+//   //   });
+// });
 /**
  * Listen on provided port, on all network interfaces.
  */
@@ -81,6 +79,16 @@ io.on('connection', (socket) => {
   });
   //斷開連接
   socket.on('disconnect', () => {})
+
+io.on('connection', (socket) => {
+  console.log('socket connect');
+  // console.log('socket====', socket);    
+  io.emit("receive server", "hi!!");
+  // const qtd = socket.client.conn.server.clientsCount;
+  // io.emit('novaconexao', qtd);
+  io.on("no no no", (msg) => {
+    console.log(`no no no`, msg);
+  });
 });
 
 
