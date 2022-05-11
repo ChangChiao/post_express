@@ -35,7 +35,7 @@ router.post(
   checkAddParam,
   handleErrorAsync(async function (req, res, next) {
     const { content, image, cover, user } = req.body;
-    const checkUser = await Posts.findById(user).exec();
+    const checkUser = await User.findById(user).exec();
     if(!checkUser){
       return next(appError(400, "使用者不存在", next));
     }
