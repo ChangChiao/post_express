@@ -40,8 +40,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
-app.use("/users", usersRouter);
-app.use("/posts", postsRouter);
+app.use("/", usersRouter);
+app.use("/", postsRouter);
 
 //404
 app.use((req, res, next) => {
@@ -88,6 +88,11 @@ app.use((error, req, res, next) => {
     return resErrorDev(error, res);
   }
   if(error.name === 'ValidationError'){
+    error.message = errorList[error.name];
+    err.isOperational = true;
+    return resErrorProd(err, res)
+  }
+  if(error.name === 'CastError'){
     error.message = errorList[error.name];
     err.isOperational = true;
     return resErrorProd(err, res)

@@ -4,13 +4,13 @@ const User = require("../models/user");
 const appError = require("../service/appError");
 const handleErrorAsync = require("../service/handleErrorAsync");
 /* GET users listing. */
-router.get("/", async (req, res, next) => {
+router.get("/users", async (req, res, next) => {
   const userList = await User.find();
   res.status(200).json({ message: "success", user: userList });
 });
 
 router.post(
-  "/",
+  "/user",
   handleErrorAsync(async (req, res, next) => {
     if (!account || !password) {
       return next(appError("400", "參數有缺", next));

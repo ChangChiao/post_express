@@ -5,7 +5,7 @@ const appError = require("../service/appError");
 const handleErrorAsync = require("../service/handleErrorAsync");
 const Posts = require("../models/posts");
 const User = require("../models/user");
-router.get("/", async function (req, res, next) {
+router.get("/posts", async function (req, res, next) {
   const timeSort = req.query.timeSort === "asc" ? "createdAt" : "-createdAt";
   const keyword =
     req.query.keyword !== undefined
@@ -31,10 +31,14 @@ const checkAddParam = handleErrorAsync(async (req, res, next) => {
 });
 
 router.post(
-  "/",
+  "/post",
   checkAddParam,
   handleErrorAsync(async function (req, res, next) {
     const { content, image, cover, user } = req.body;
+    const checkUser = await Posts.findById(user).exec();
+    if(!checkUser){
+      return next(appError(400, "使用者不存在", next));
+    }
     const newPost = await Posts.create({
       content,
       image,
@@ -54,7 +58,7 @@ const checkReviseParam = handleErrorAsync(async (req, res, next) => {
 });
 
 router.patch(
-  "/:id",
+  "/post/:id",
   handleErrorAsync(async function (req, res, next) {
     const { id } = req.params;
     const { name, content } = req.body;
@@ -79,7 +83,7 @@ router.patch(
 );
 
 router.delete(
-  "/:id",
+  "/post/:id",
   handleErrorAsync(async function (req, res, next) {
     const { id } = req.params;
     await Posts.findByIdAndDelete(id);
@@ -88,7 +92,7 @@ router.delete(
 );
 
 router.delete(
-  "/",
+  "/posts",
   handleErrorAsync(async function (req, res, next) {
     await Posts.deleteMany({});
     res.status(200).json({ message: "success", status: "success", posts: [] });
