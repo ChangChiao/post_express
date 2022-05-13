@@ -7,7 +7,7 @@
 var app = require("../app");
 var debug = require("debug")("post-express:server");
 var http = require("http");
-
+const socket = require("../routes/socket");
 /**
  * Get port from environment and store in Express.
  */
@@ -20,24 +20,18 @@ app.set("port", port);
  */
 
 var server = http.createServer(app);
+
+const io = socket(server)
 /**
  * Create Socket.io
  */
-const { Server } = require("socket.io");
-const io = new Server(server, {
-  path: "/socket.io/",
-  cors: {
-    origin: "*",
-  }
-});
-// exports.io = io;
 
-// io.on("connection", (socket) => {
-//   console.log("socket!!!!");
-//   io.emit("join", "hi!!");
-//   //   socket.on("chat message", (msg) => {
-//   //     io.emit("chat message", msg);
-//   //   });
+// const { Server } = require("socket.io");
+// const io = new Server(server, {
+//   path: "/socket.io/",
+//   cors: {
+//     origin: "*",
+//   }
 // });
 /**
  * Create Socket.io
@@ -66,7 +60,10 @@ server.listen(port);
 server.on("error", onError);
 server.on("listening", onListening);
 
+
+
 //建立連接
+<<<<<<< HEAD
 io.on('connection', (socket) => {
   console.log('socket connect', socket.id);
   // const qtd = socket.client.conn.server.clientsCount;
@@ -98,6 +95,8 @@ io.on('connection', (socket) => {
 io.on("connect_error", (err) => {
   console.log(`connect_error due to ${err.message}`);
 });
+=======
+>>>>>>> 8920e0c (refator socket room)
 app.set('socketio', io);//here you export my socket.io to a global    
 
 
