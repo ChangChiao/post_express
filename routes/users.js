@@ -11,13 +11,13 @@ const User = require("../models/user");
 router.post(
   "/sign_up",
   handleErrorAsync(async (req, res, next) => {
-    const { email, password, confirmPassword, name } = req.body;
-    if (!email || !password || !confirmPassword || !name) {
+    const { email, password, userName } = req.body;
+    if (!email || !password || !userName) {
       return next(appError(400, "欄位資料有缺", next));
     }
-    if (password !== confirmPassword) {
-      return next(appError(400, "密碼不一致", next));
-    }
+    // if (password !== confirmPassword) {
+    //   return next(appError(400, "密碼不一致", next));
+    // }
 
     if (!validator.isLength(password, { min: 8 })) {
       return next(appError(400, "密碼長度不得少於8碼", next));
@@ -26,12 +26,16 @@ router.post(
     if (!validator.isEmail(email)) {
       return next(appError(400, "email格式錯誤", next));
     }
+    console.log("momomom");
+    const user = await User.findOne({ email })
+    if(user) return next(appError(400, "該email已被註冊", next));
 
-    password = await bcrypt.hash(req.body.password, 12);
+    console.log("passss");
+    const hashPassword = await bcrypt.hash(password, 12);
     const newUser = await User.create({
       email,
-      password,
-      name,
+      password: hashPassword,
+      userName,
     });
     generateSendJWT(newUser, 201, res);
   })
