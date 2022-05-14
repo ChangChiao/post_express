@@ -15,13 +15,14 @@ const MessageSchema = new mongoose.Schema({
   },
 });
 
-const memberSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.ObjectId,
-    ref: "User",
-  },
-  // last_seen: Date,
-});
+// const memberSchema = new mongoose.Schema({
+//   user: String
+//   // user: {
+//   //   type: mongoose.Schema.ObjectId,
+//   //   ref: "User",
+//   // },
+//   // last_seen: Date,
+// });
 
 const ChatRoomSchema = new mongoose.Schema({
   roomType: {
@@ -30,7 +31,8 @@ const ChatRoomSchema = new mongoose.Schema({
     enum: [0, 1], //0=私人 //1=公開
   },
   members: {
-    type: [memberSchema],
+    type: [String],
+    required: true,
     default: [],
   },
   messages: {

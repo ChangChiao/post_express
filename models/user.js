@@ -1,4 +1,16 @@
 const mongoose = require("mongoose");
+
+const chatRecord = new mongoose.Schema({
+  room: {
+    type: mongoose.Schema.ObjectId,
+    ref: "ChatRoom",
+  },
+  receiver: {
+    type: mongoose.Schema.ObjectId,
+    ref: "User",
+  }
+})
+
 const userSchema = new mongoose.Schema(
   {
     userName: {
@@ -34,12 +46,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       select: false,
     },
-    chatRecord: [
-      {
-        roomId: String,
-        receiver: String,
-      }
-    ]
+    chatRecord: {
+      type: [chatRecord],
+      default: []
+    }
   },
   {
     versionKey: false,

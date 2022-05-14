@@ -21,7 +21,11 @@ const isAuth = handleErrorAsync(async(req, res, next) => {
         })
     })
     const currentUser = await User.findById(decodedToken.id);
-    req.user = currentUser;
+    const _id = currentUser._id.toString()
+    req.user = {
+        ...currentUser,
+        _id,
+    };
     next();
 })
 

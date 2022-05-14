@@ -7,7 +7,6 @@ var cors = require("cors");
 const dotenv = require("dotenv");
 const errorList = require("./service/erroList");
 dotenv.config({ path: "./config.env" });
-console.log('2222');
 const DB = process.env.DATABASE.replace(
   "<password>",
   process.env.DATABASE_PASSWORD
@@ -26,7 +25,6 @@ var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var postsRouter = require("./routes/posts");
 var chatRouter = require("./routes/chat");
-var chatListRouter = require("./routes/chatList");
 var app = express();
 
 process.on("uncaughtException", (error) => {
@@ -48,9 +46,8 @@ app.use("/chat", chatRouter);
 app.use(postsRouter);
 
 app.use("/user", usersRouter);
-app.use(postsRouter);
 app.use("/chat", chatRouter);
-app.use("/chat-list", chatListRouter);
+app.use(postsRouter);
 //404
 app.use((req, res, next) => {
   res.status(404).json({
