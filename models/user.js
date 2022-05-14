@@ -3,21 +3,17 @@ const userSchema = new mongoose.Schema({
   userName: {
     type: String,
   },
-  account: {
+  email: {
     type: String,
-    required: [true, "用戶帳號未填寫"],
+    required: [true, "請輸入您的信箱"],
     unique: true,
+    lowercase: true,
     select: false,
   },
   password: {
-    required: [true, "用戶密碼未填寫"],
+    required: [true, "請輸入您的密碼"],
     type: String,
     minlength: 8,
-    select: false,
-  },
-  googleUUID: {
-    type: String,
-    unique: true,
     select: false,
   },
   gender: {
@@ -30,6 +26,11 @@ const userSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  googleUUID: {
+    type: String,
+    unique: true,
+    select: false,
   },
 });
 
