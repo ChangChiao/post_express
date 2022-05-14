@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
   password: {
     required: [true, "用戶密碼未填寫"],
     type: String,
-    unique: true,
+    minlength: 8,
     select: false,
   },
   googleUUID: {
@@ -21,8 +21,8 @@ const userSchema = new mongoose.Schema({
     select: false,
   },
   gender: {
-    type: Number,
-    default: 0,
+    type: String,
+    enum: ['male', 'female']
   },
   avatar: {
     type: String,

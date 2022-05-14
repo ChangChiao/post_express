@@ -1,12 +1,16 @@
 const { json } = require("express");
 const express = require("express");
 const router = express.Router();
+const appError = require("../service/appError");
+const handleErrorAsync = require("../service/handleErrorAsync");
 const Posts = require("../models/posts");
 const User = require("../models/user");
-router.get("/", async function (req, res, next) {
+router.get("/posts", async function (req, res, next) {
   const timeSort = req.query.timeSort === "asc" ? "createdAt" : "-createdAt";
   const keyword =
-    req.query.keyword !== undefined ? { content: new RegExp(req.query.keyword) } : {};
+    req.query.keyword !== undefined
+      ? { content: new RegExp(req.query.keyword) }
+      : {};
   const postList = await Posts.find(keyword)
     .populate({
       path: "user",
@@ -18,12 +22,22 @@ router.get("/", async function (req, res, next) {
     .json({ message: "success", status: "success", posts: postList });
 });
 
-router.post("/", async function (req, res, next) {
-  try {
+const checkAddParam = handleErrorAsync(async (req, res, next) => {
+  const { content, user } = req.body;
+  if (user === undefined || content === undefined) {
+    return next(appError(400, "參數有缺", next));
+  }
+  next()
+});
+
+router.post(
+  "/post",
+  checkAddParam,
+  handleErrorAsync(async function (req, res, next) {
     const { content, image, cover, user } = req.body;
-    if (user === undefined || content === undefined) {
-      res.status(400).json({ message: "參數有缺", status: "fail" });
-      return;
+    const checkUser = await User.findById(user).exec();
+    if(!checkUser){
+      return next(appError(400, "使用者不存在", next));
     }
     const newPost = await Posts.create({
       content,
@@ -34,18 +48,24 @@ router.post("/", async function (req, res, next) {
     res
       .status(200)
       .json({ message: "success", status: "success", posts: newPost });
-  } catch (error) {
-    res.status(400).json({ message: "新增失敗", status: "fail" });
+  })
+);
+
+const checkReviseParam = handleErrorAsync(async (req, res, next) => {
+  if (user === undefined || content === undefined) {
+    return next(appError(400, "參數有缺", next));
   }
 });
 
-router.patch("/:id", async function (req, res, next) {
-  try {
+router.patch(
+  "/post/:id",
+  handleErrorAsync(async function (req, res, next) {
     const { id } = req.params;
     const { name, content } = req.body;
     if (name === undefined || content === undefined) {
-      res.status(400).json({ message: "參數有缺", status: "fail" });
-      return;
+      return next(appError(400, '參數有缺', next))
+      // res.status(400).json({ message: "參數有缺", status: "fail" });
+      // return;
     }
     const target = await Posts.findByIdAndUpdate(
       id,
@@ -59,28 +79,24 @@ router.patch("/:id", async function (req, res, next) {
     } else {
       res.status(400).json({ message: "無此id", status: "fail" });
     }
-  } catch (error) {
-    res.status(400).json({ message: "修改失敗", status: "fail" });
-  }
-});
+  })
+);
 
-router.delete("/:id", async function (req, res, next) {
-  try {
+router.delete(
+  "/post/:id",
+  handleErrorAsync(async function (req, res, next) {
     const { id } = req.params;
     await Posts.findByIdAndDelete(id);
     res.status(200).json({ message: "success", status: "success" });
-  } catch (error) {
-    res.status(400).json({ message: "無此id", status: "fail" });
-  }
-});
+  })
+);
 
-router.delete("/", async function (req, res, next) {
-  try {
+router.delete(
+  "/posts",
+  handleErrorAsync(async function (req, res, next) {
     await Posts.deleteMany({});
     res.status(200).json({ message: "success", status: "success", posts: [] });
-  } catch (error) {
-    res.status(400).json({ message: "刪除失敗", status: "fail" });
-  }
-});
+  })
+);
 
 module.exports = router;
