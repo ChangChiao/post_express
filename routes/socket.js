@@ -1,4 +1,5 @@
 const { Server } = require("socket.io");
+const ChatRoom  = require("../models/chatRoom");
 module.exports = function (server) {
   const io = new Server(server, {
     path: "/socket.io/",
@@ -13,8 +14,12 @@ module.exports = function (server) {
     // const qtd = socket.client.conn.server.clientsCount;
     // socket.join('KPL') //加入房間
     // 監聽 client發來的訊息
-    socket.on("sendMsg", (msg) => {
-      // socket.to('KPL').emit('talk', msg)
+    socket.on("sendMsg", async(msg) => {
+      const { message, sender, roomId } = msg;
+      await ChatRoom.findByIdAndUpdate(roomId, {
+        $push: { messages: { sender, message } },
+      })
+       // socket.to('KPL').emit('talk', msg)
       socket.emit("receiveMsg", msg);
       console.log(`傳來的訊息`, msg);
     });

@@ -24,31 +24,36 @@ const MessageSchema = new mongoose.Schema({
 //   // last_seen: Date,
 // });
 
-const ChatRoomSchema = new mongoose.Schema({
-  roomType: {
-    type: Number,
-    default: 0,
-    enum: [0, 1], //0=私人 //1=公開
+const ChatRoomSchema = new mongoose.Schema(
+  {
+    roomType: {
+      type: Number,
+      default: 0,
+      enum: [0, 1], //0=私人 //1=公開
+    },
+    members: {
+      type: [String],
+      required: true,
+      default: [],
+    },
+    messages: {
+      type: [MessageSchema],
+      default: [],
+    },
+    status: {
+      type: Number,
+      default: 0,
+      enum: [0, 1, 2], //0=正常  1=禁止發言  2=解散
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now(),
+    },
   },
-  members: {
-    type: [String],
-    required: true,
-    default: [],
-  },
-  messages: {
-    type: [MessageSchema],
-    default: [],
-  },
-  status: {
-    type: Number,
-    default: 0,
-    enum: [0, 1, 2], //0=正常  1=禁止發言  2=解散
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now(),
-  },
-});
+  {
+    versionKey: false,
+  }
+);
 
 const ChatRoom = mongoose.model("ChatRoom", ChatRoomSchema);
 module.exports = ChatRoom;

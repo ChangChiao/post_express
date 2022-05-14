@@ -16,11 +16,13 @@ router.post(
     if (sender === receiver) {
       return next(appError(400, "自己不能跟自己聊天！", next));
     }
-    const chatRecord = await User.findById(sender).select("chatRecord");
-    console.log("chatRecord", chatRecord?.chatRecord);
+    const queryResult = await User.findById(sender).select("chatRecord");
+    console.log("chatRecord", queryResult?.chatRecord);
     console.log("receiver", receiver);
     const { receiver: receiverRecord, room } =
-      chatRecord?.chatRecord.find((item) => item.receiver.toString() === receiver) || {};
+      queryResult?.chatRecord.find(
+        (item) => item.receiver.toString() === receiver
+      ) || {};
     console.log("sender", sender);
     console.log("receiverRecord", receiverRecord);
     if (receiverRecord) {
@@ -56,20 +58,61 @@ router.delete(
   })
 );
 
+//TODO for test
+router.delete(
+  "/chat-record",
+  handleErrorAsync(async (req, res, next) => {
+    await ChatRoom.deleteMany({});
+    res.status(200).json({ message: "success" });
+  })
+);
+
+//TODO for test
+
+router.get("/all", async (req, res, next) => {
+  const chatRecord = await ChatRoom.find();
+  res.status(200).json({ message: "success", chatRecord: chatRecord });
+});
+
 router.post(
   "/chat-record",
   isAuth,
   handleErrorAsync(async (req, res, next) => {
     const test = await User.findById(req.user._id);
     console.log("test", test);
-    const chatRecord = await User.findById(req.user._id).populate({
-      path: "chatRecord",
-      populate: [
-        { path: "roomInfo", model: ChatRoom },
-        { path: "receiver", model: User },
-      ],
-    });
-    res.status(200).json({ message: "success", chatRecord });
+    const queryResult = await User.findById(req.user._id)
+      .populate({
+        path: "chatRecord",
+        populate: [
+          {
+            path: "room",
+            select: "messages -_id",
+            perDocumentLimit: 1,
+            options: {
+              limit: 2,
+            },
+          },
+          { path: "receiver", select: "userName avatar -_id" },
+        ],
+      })
+      .select("chatRecord");
+    // const queryResult = await User.findById(req.user._id)
+    // .populate({
+    //   path: "chatRecord",
+    //   populate:
+    //     { path: "receiver", select: "userName avatar -_id" },
+    // })
+    // .select("chatRecord");
+    // queryResult.chatRecord.forEach(element => {
+
+    // });
+    // const lastMessage = await ChatRoom.findById(queryResult.roomId).slice('messages', 1)
+    // queryResult.chatRecord.lastMessage = lastMessage || {}
+    // console.log("lastMessage", lastMessage);
+    // console.log("queryResult", queryResult);
+    res
+      .status(200)
+      .json({ status: "success", chatRecord: queryResult.chatRecord });
   })
 );
 
