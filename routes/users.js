@@ -101,6 +101,15 @@ router.patch(
 );
 
 //TODO for test
+
+router.get("/chat-record", isAuth, async (req, res, next) => {
+  const targetUser = await User.findById(req.user)
+  const chatRecord = targetUser.chatRecord;
+  res.status(200).json({ message: "success", chatRecord });
+});
+
+
+//for test
 router.get("/all", async (req, res, next) => {
   const userList = await User.find();
   res.status(200).json({ message: "success", user: userList });

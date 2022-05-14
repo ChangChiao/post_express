@@ -34,6 +34,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       select: false,
     },
+    chatRecord: [
+      {
+        roomId: String,
+        receiver: String,
+      }
+    ]
   },
   {
     versionKey: false,

@@ -26,6 +26,7 @@ var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var postsRouter = require("./routes/posts");
 var chatRouter = require("./routes/chat");
+var chatListRouter = require("./routes/chatList");
 var app = express();
 
 process.on("uncaughtException", (error) => {
@@ -47,8 +48,9 @@ app.use("/chat", chatRouter);
 app.use(postsRouter);
 
 app.use("/user", usersRouter);
-app.use("/", postsRouter);
+app.use(postsRouter);
 app.use("/chat", chatRouter);
+app.use("/chat-list", chatListRouter);
 //404
 app.use((req, res, next) => {
   res.status(404).json({
