@@ -4,7 +4,7 @@ const appError = require("./appError");
 const handleErrorAsync = require("./handleErrorAsync");
 const User = require("../models/user");
 
-const isAuth = handleErrorAsync((req, res, next) => {
+const isAuth = handleErrorAsync(async(req, res, next) => {
     let token;
     const authorization = req.headers.authorization
     if(authorization && authorization.startsWith("Bearer")){
