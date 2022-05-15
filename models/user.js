@@ -1,9 +1,11 @@
 const mongoose = require("mongoose");
 
 const chatRecord = new mongoose.Schema({
-  room: {
+  roomId: {
     type: mongoose.Schema.ObjectId,
     ref: "ChatRoom",
+    // required: true,
+    // unique: true
   },
   receiver: {
     type: mongoose.Schema.ObjectId,

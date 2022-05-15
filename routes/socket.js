@@ -16,8 +16,9 @@ module.exports = function (server) {
     // 監聽 client發來的訊息
     socket.on("sendMsg", async(msg) => {
       const { message, sender, roomId } = msg;
+      const createdAt = Date.now()
       await ChatRoom.findByIdAndUpdate(roomId, {
-        $push: { messages: { sender, message } },
+        $push: { messages: { sender, message, createdAt } },
       })
        // socket.to('KPL').emit('talk', msg)
       socket.emit("receiveMsg", msg);

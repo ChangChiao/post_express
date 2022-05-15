@@ -4,6 +4,8 @@ const ChatRoom = require("../models/chatRoom");
 const appError = require("../service/appError");
 const handleErrorAsync = require("../service/handleErrorAsync");
 const { isAuth } = require("../service/auth");
+const mongoose = require("mongoose");
+const { db } = require("../models/user");
 router.post(
   "/room-info",
   isAuth,
@@ -19,7 +21,7 @@ router.post(
     const queryResult = await User.findById(sender).select("chatRecord");
     console.log("chatRecord", queryResult?.chatRecord);
     console.log("receiver", receiver);
-    const { receiver: receiverRecord, room } =
+    const { receiver: receiverRecord, roomId } =
       queryResult?.chatRecord.find(
         (item) => item.receiver.toString() === receiver
       ) || {};
@@ -28,21 +30,21 @@ router.post(
     if (receiverRecord) {
       res.status(200).json({
         status: "success",
-        room,
+        roomId,
       });
     } else {
       const newRoom = await ChatRoom.create({
         members: [sender, receiver],
       });
       await User.findByIdAndUpdate(sender, {
-        $push: { chatRecord: { room: newRoom._id, receiver: receiver } },
+        $push: { chatRecord: { roomId: newRoom._id, receiver: receiver } },
       });
       await User.findByIdAndUpdate(receiver, {
-        $push: { chatRecord: { room: newRoom._id, receiver: sender } },
+        $push: { chatRecord: { roomId: newRoom._id, receiver: sender } },
       });
       res.status(200).json({
         status: "success",
-        room: newRoom._id,
+        roomId: newRoom._id,
       });
     }
   })
@@ -78,41 +80,130 @@ router.post(
   "/chat-record",
   isAuth,
   handleErrorAsync(async (req, res, next) => {
-    const test = await User.findById(req.user._id);
+    // const queryResult = await User.findById(req.user._id)
+    //   .populate({
+    //     path: "chatRecord",
+    //     populate: [
+    //       {
+    //         path: "room",
+    //         select: "messages -_id",
+    //         perDocumentLimit: 1,
+    //         options: {
+    //           limit: 2,
+    //         },
+    //       },
+    //       { path: "receiver", select: "userName avatar -_id" },
+    //     ],
+    //   })
+    //   .select("chatRecord");
+    const ObjectId = mongoose.Types.ObjectId;
+    const test = await User.aggregate([
+      { $match: { _id: req.user._id } },
+      {
+        $project: { chatRecord: 1 },
+      },
+      // {
+      //   $unwind: { path: "$chatRecord", preserveNullAndEmptyArrays: true },
+      // },
+      {
+        $lookup: {
+          from: "users",
+          localField: "chatRecord.receiver",
+          foreignField: "_id",
+          as: "receivers",
+        },
+      },
+      {
+        $lookup: {
+          from: "chatrooms",
+          localField: "chatRecord.roomId",
+          foreignField: "_id",
+          as: "room",
+        },
+      },
+      {
+        $addFields: {
+          // receiver: {
+          //   userName: "$person.userName",
+          //   avatar: "$person.avatar",
+          // },
+          // receiver: "$$REMOVE",
+          // room: "$$REMOVE",
+          chatRecord: {
+            $map: {
+              input: "$room",
+              as: "ele",
+              in: {
+                $mergeObjects: [
+                  {
+                    roomId: "$$ele._id",
+                    message: { $slice: ["$$ele.messages", -1] },
+                  },
+                  {
+                    $arrayElemAt: [
+                      {
+                        $filter: {
+                          input: "$receivers",
+                          as: "receiver",
+                          // cond: {
+                          //   $setIsSubset: [
+                          //     ["$$receiver._id"],
+                          //     "$$ele.members"
+                          //   ]
+                          // }
+                          cond: { $eq: ["$$receiver.userName", "mary10"] },
+                        },
+                      },
+                      0,
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+          // chatRecord: {
+          //   $map: {
+          //     input: "$room",
+          //     as: "ele",
+          //     in: {
+          //       receiver: {
+          //         $cond: [ {"$receiver": []} ]
+          //       },
+          //       roomId: "$$ele._id",
+          //       message: { $slice: ["$$ele.messages", -1] },
+          //     },
+          //   },
+          // },
+        },
+      },
+      // { $unwind: "$chatRecord" },
+    ]);
     console.log("test", test);
+    console.log("test2", test[0]);
     const queryResult = await User.findById(req.user._id)
       .populate({
         path: "chatRecord",
-        populate: [
-          {
-            path: "room",
-            select: "messages -_id",
-            perDocumentLimit: 1,
-            options: {
-              limit: 2,
-            },
-          },
-          { path: "receiver", select: "userName avatar -_id" },
-        ],
+        populate: { path: "receiver", select: "userName avatar -_id" },
       })
       .select("chatRecord");
-    // const queryResult = await User.findById(req.user._id)
-    // .populate({
-    //   path: "chatRecord",
-    //   populate:
-    //     { path: "receiver", select: "userName avatar -_id" },
-    // })
-    // .select("chatRecord");
+
+    // queryResult.chatRecord.a
+
+    // const roomIdArr = queryResult.chatRecord.map((ele) => ele.roomId);
+    // const lastMessage = await ChatRoom.find(
+    //   { _id: { $in: roomIdArr } },
+    //   { messages: { $slice: 1 }, roomType: 0, members: 0, status: 0 }
+    // );
+
     // queryResult.chatRecord.forEach(element => {
 
     // });
-    // const lastMessage = await ChatRoom.findById(queryResult.roomId).slice('messages', 1)
     // queryResult.chatRecord.lastMessage = lastMessage || {}
     // console.log("lastMessage", lastMessage);
     // console.log("queryResult", queryResult);
     res
       .status(200)
-      .json({ status: "success", chatRecord: queryResult.chatRecord });
+      .json({ status: "success", chatRecord: queryResult.chatRecord, test });
   })
 );
 
