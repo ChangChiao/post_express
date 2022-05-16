@@ -43,8 +43,9 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
-app.use("/posts", postsRouter);
 app.use("/chat", chatRouter);
+app.use(postsRouter);
+
 //404
 app.use((req, res, next) => {
   res.status(404).json({
@@ -72,8 +73,8 @@ const resErrorPrd = (error, res) => {
 
 // dev env error
 const resErrorDev = (error, res) => {
-  const { stack, message } = error;
-  res.status(500).json({
+  const { stack, message, statusCode } = error;
+  res.status(statusCode).json({
     status: "error",
     message: {
       message,
@@ -93,6 +94,11 @@ app.use((error, req, res, next) => {
     error.message = errorList[error.name];
     err.isOperational = true;
     return resErrorProd(err, res);
+  }
+  if(error.name === 'CastError'){
+    error.message = errorList[error.name];
+    err.isOperational = true;
+    return resErrorProd(err, res)
   }
   resErrorPrd(error, res);
 });

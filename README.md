@@ -7,4 +7,6 @@
 PORT=3005
 DATABASE=mongodb+srv://account:<password>@cluster0.s2upn.mongodb.net/postList?retryWrites=true&w=majority
 DATABASE_PASSWORD=password
+JWT_SECRET=your secret
+JWT_EXPIRES_DAY=7d
 ```
