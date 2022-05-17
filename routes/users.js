@@ -88,9 +88,6 @@ router.patch(
   isAuth,
   handleErrorAsync(async (req, res, next) => {
     const { userName, gender, avatar } = req.body;
-    if (!userName) {
-      return next(appError('400', "暱稱不能為空", next));
-    }
     const updateUser = await User.findByIdAndUpdate(
       req.user._id,
       { userName, gender, avatar },

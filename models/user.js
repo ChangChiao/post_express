@@ -20,9 +20,11 @@ const userSchema = new mongoose.Schema(
     gender: {
       type: String,
       enum: ["male", "female"],
+      default: "male"
     },
     avatar: {
       type: String,
+      default: "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/14.jpg",
     },
     createdAt: {
       type: Date,
