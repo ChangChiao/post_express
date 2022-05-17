@@ -1,0 +1,229 @@
+{
+	"info": {
+		"_postman_id": "19dc7a08-b8b0-44f5-9910-7815f26eb66b",
+		"name": "auth",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "sign in",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"email\":\"mary10@gmail.com\",\"password\":\"12345678\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/users/sign_in",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"users",
+						"sign_in"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "sign up",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"userName\":\"joe\",\"email\":\"joe10@gmail.com\",\"password\":\"12345678\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/users/sign_up",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"users",
+						"sign_up"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update password",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyODM0NDY2NTcyYzQzYmYxZWIzMDU4YiIsImlhdCI6MTY1Mjc2OTg5NCwiZXhwIjoxNjUzMzc0Njk0fQ.46I0Z-8OeEqYv_6k6TPOeT_ocUq-2BfswnPe8zw0LvY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"password\":\"12345678\",\"confirmPassword\":\"12345678\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/users/update_password",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"users",
+						"update_password"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get profile",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyODM0NDY2NTcyYzQzYmYxZWIzMDU4YiIsImlhdCI6MTY1Mjc2OTk5NywiZXhwIjoxNjUzMzc0Nzk3fQ.LE0XxNp6-5pNHiCNlYL0xJhi-3cGClZycNIYw_88hgo",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/users/profile",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"users",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update profile",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyODM0NDY2NTcyYzQzYmYxZWIzMDU4YiIsImlhdCI6MTY1Mjc2OTk5NywiZXhwIjoxNjUzMzc0Nzk3fQ.LE0XxNp6-5pNHiCNlYL0xJhi-3cGClZycNIYw_88hgo",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"userName\":\"mary\",\"gender\":\"female\",\"avatar\":\"https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/14.jpg\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/users/profile",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"users",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get posts",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyODMzYWViZDM2OTJmMTVkMjFhZjU3ZSIsImlhdCI6MTY1Mjc2OTM2OCwiZXhwIjoxNjUzMzc0MTY4fQ.AjiJzcl0K4k_ccJk8LqpftIXYc4pYolk9HILJiZglyk",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/posts",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"posts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add post",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyODMzYWViZDM2OTJmMTVkMjFhZjU3ZSIsImlhdCI6MTY1Mjc2OTM2OCwiZXhwIjoxNjUzMzc0MTY4fQ.AjiJzcl0K4k_ccJk8LqpftIXYc4pYolk9HILJiZglyk",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"content\": \"wewew\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/post",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"post"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

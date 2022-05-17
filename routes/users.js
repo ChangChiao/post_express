@@ -50,11 +50,11 @@ router.post(
     //密碼取出比對
     const user = await User.findOne({ email }).select("+password");
     if(!user){
-      return next(appError(400, "沒有這個使用者", next));
+      return next(appError(401, "您的帳號或密碼不正確", next));
     }
     const auth = await bcrypt.compare(password, user.password);
     if (!auth) {
-      return next(appError(400, "您的密碼不正確", next));
+      return next(appError(401, "您的帳號或密碼不正確", next));
     }
     generateSendJWT(user, 200, res);
   })
