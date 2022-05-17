@@ -25,11 +25,16 @@ router.post(
       queryResult?.chatRecord.find(
         (item) => item.receiver.toString() === receiver
       ) || {};
+    const receiverUser = await User.findById(receiver)
+    const { userName, avatar, _id } = receiverUser
     //已經有聊天記錄就直接回傳id
     if (receiverRecord) {
       res.status(200).json({
         status: "success",
         roomId,
+        userName, 
+        avatar,
+        _id
       });
     } else {
     //沒有聊天記錄就新建房間
@@ -45,6 +50,9 @@ router.post(
       res.status(200).json({
         status: "success",
         roomId: newRoom._id,
+        userName, 
+        avatar,
+        _id
       });
     }
   })
