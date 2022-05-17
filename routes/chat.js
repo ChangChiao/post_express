@@ -1,11 +1,13 @@
 const router = require("express").Router();
-const User = require("../models/user");
-const ChatRoom = require("../models/chatRoom");
+const User = require("../models/userModel");
+const ChatRoom = require("../models/chatRoomModel");
 const appError = require("../service/appError");
 const handleErrorAsync = require("../service/handleErrorAsync");
 const { isAuth } = require("../service/auth");
 const mongoose = require("mongoose");
-const { db } = require("../models/user");
+const ObjectId = mongoose.Types.ObjectId;
+
+//取得聊天室id
 router.post(
   "/room-info",
   isAuth,
@@ -19,22 +21,20 @@ router.post(
       return next(appError(400, "自己不能跟自己聊天！", next));
     }
     const queryResult = await User.findById(sender).select("chatRecord");
-    console.log("chatRecord", queryResult?.chatRecord);
-    console.log("receiver", receiver);
     const { receiver: receiverRecord, roomId } =
       queryResult?.chatRecord.find(
         (item) => item.receiver.toString() === receiver
       ) || {};
-    console.log("sender", sender);
-    console.log("receiverRecord", receiverRecord);
+    //已經有聊天記錄就直接回傳id
     if (receiverRecord) {
       res.status(200).json({
         status: "success",
         roomId,
       });
     } else {
+    //沒有聊天記錄就新建房間
       const newRoom = await ChatRoom.create({
-        members: [sender, receiver],
+        members: [ObjectId(sender), ObjectId(receiver)],
       });
       await User.findByIdAndUpdate(sender, {
         $push: { chatRecord: { roomId: newRoom._id, receiver: receiver } },
@@ -76,35 +76,17 @@ router.get("/all", async (req, res, next) => {
   res.status(200).json({ message: "success", chatRecord: chatRecord });
 });
 
+
+//取得聊天記錄
 router.post(
   "/chat-record",
   isAuth,
   handleErrorAsync(async (req, res, next) => {
-    // const queryResult = await User.findById(req.user._id)
-    //   .populate({
-    //     path: "chatRecord",
-    //     populate: [
-    //       {
-    //         path: "room",
-    //         select: "messages -_id",
-    //         perDocumentLimit: 1,
-    //         options: {
-    //           limit: 2,
-    //         },
-    //       },
-    //       { path: "receiver", select: "userName avatar -_id" },
-    //     ],
-    //   })
-    //   .select("chatRecord");
-    const ObjectId = mongoose.Types.ObjectId;
-    const test = await User.aggregate([
+    const [ queryResult ] = await User.aggregate([
       { $match: { _id: req.user._id } },
       {
         $project: { chatRecord: 1 },
       },
-      // {
-      //   $unwind: { path: "$chatRecord", preserveNullAndEmptyArrays: true },
-      // },
       {
         $lookup: {
           from: "users",
@@ -123,12 +105,8 @@ router.post(
       },
       {
         $addFields: {
-          // receiver: {
-          //   userName: "$person.userName",
-          //   avatar: "$person.avatar",
-          // },
-          // receiver: "$$REMOVE",
-          // room: "$$REMOVE",
+          receivers: "$$REMOVE",
+          room: "$$REMOVE",
           chatRecord: {
             $map: {
               input: "$room",
@@ -145,13 +123,7 @@ router.post(
                         $filter: {
                           input: "$receivers",
                           as: "receiver",
-                          // cond: {
-                          //   $setIsSubset: [
-                          //     ["$$receiver._id"],
-                          //     "$$ele.members"
-                          //   ]
-                          // }
-                          cond: { $eq: ["$$receiver.userName", "mary10"] },
+                          cond: { $in: ["$$receiver._id", "$$ele.members"] },
                         },
                       },
                       0,
@@ -161,68 +133,16 @@ router.post(
               },
             },
           },
-          // chatRecord: {
-          //   $map: {
-          //     input: "$room",
-          //     as: "ele",
-          //     in: {
-          //       receiver: {
-          //         $cond: [ {"$receiver": []} ]
-          //       },
-          //       roomId: "$$ele._id",
-          //       message: { $slice: ["$$ele.messages", -1] },
-          //     },
-          //   },
-          // },
         },
       },
-      // { $unwind: "$chatRecord" },
+      {
+        $project: { "chatRecord.password": 0, "chatRecord.email": 0, "chatRecord.createdAt": 0, 'chatRecord.chatRecord':0},
+      },
     ]);
-    console.log("test", test);
-    console.log("test2", test[0]);
-    const queryResult = await User.findById(req.user._id)
-      .populate({
-        path: "chatRecord",
-        populate: { path: "receiver", select: "userName avatar -_id" },
-      })
-      .select("chatRecord");
-
-    // queryResult.chatRecord.a
-
-    // const roomIdArr = queryResult.chatRecord.map((ele) => ele.roomId);
-    // const lastMessage = await ChatRoom.find(
-    //   { _id: { $in: roomIdArr } },
-    //   { messages: { $slice: 1 }, roomType: 0, members: 0, status: 0 }
-    // );
-
-    // queryResult.chatRecord.forEach(element => {
-
-    // });
-    // queryResult.chatRecord.lastMessage = lastMessage || {}
-    // console.log("lastMessage", lastMessage);
-    // console.log("queryResult", queryResult);
     res
       .status(200)
-      .json({ status: "success", chatRecord: queryResult.chatRecord, test });
+      .json({ status: "success", chatRecord: queryResult?.chatRecord });
   })
 );
 
-module.exports = router;
-const io = require("../bin/www").io;
-
-// io.on("connection", (socket) => {
-//   io.emit("join", 'hi!!');
-// //   socket.on("chat message", (msg) => {
-// //     io.emit("chat message", msg);
-// //   });
-// });
-const router = require("express").Router();
-router.get("/", (req, res) => {
-  const io = req.app.get("socketio"); //Here you use the exported socketio module
-  // console.log('ioooo', io);
-  // console.log(io.client.conn.server.clientsCount);
-  // io.emit("join", 111);
-  // io.emit("new-user", { qtd: io.client.conn.server.clientsCount });
-  res.status(200).json({ msg: "server up and running" });
-});
 module.exports = router;

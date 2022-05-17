@@ -1,5 +1,5 @@
 const { Server } = require("socket.io");
-const ChatRoom  = require("../models/chatRoom");
+const ChatRoom  = require("../models/chatRoomModel");
 module.exports = function (server) {
   const io = new Server(server, {
     path: "/socket.io/",
@@ -11,7 +11,9 @@ module.exports = function (server) {
   //建立連接
   io.of('/chat').on("connection", (socket) => {
     console.log("socket connect", socket.id);
-    // const qtd = socket.client.conn.server.clientsCount;
+    socket.on('joinRoom', function(room) {
+      socket.join(room);
+    });
     // socket.join('KPL') //加入房間
     // 監聽 client發來的訊息
     socket.on("sendMsg", async(msg) => {
@@ -32,5 +34,5 @@ module.exports = function (server) {
     console.log(`connect_error due to ${err.message}`);
   });
 
-  return io; // so it can be used in app.js ( if need be )
+  return io;
 };

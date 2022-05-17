@@ -6,7 +6,7 @@ const router = express.Router();
 const appError = require("../service/appError");
 const handleErrorAsync = require("../service/handleErrorAsync");
 const { isAuth, generateSendJWT } = require("../service/auth");
-const User = require("../models/user");
+const User = require("../models/userModel");
 
 router.post(
   "/sign_up",
@@ -26,12 +26,6 @@ router.post(
     if (!validator.isEmail(email)) {
       return next(appError(400, "email格式錯誤", next));
     }
-<<<<<<< HEAD
-=======
-    console.log("momomom");
-    const user = await User.findOne({ email });
-    if (user) return next(appError(400, "該email已被註冊", next));
->>>>>>> f92a662 (fix user model save data)
 
     const user = await User.findOne({ email });
     if (user) return next(appError(400, "該email已被註冊", next));

@@ -4,8 +4,8 @@ const router = express.Router();
 const appError = require("../service/appError");
 const handleErrorAsync = require("../service/handleErrorAsync");
 const { isAuth } = require("../service/auth");
-const Posts = require("../models/posts");
-const User = require("../models/user");
+const Posts = require("../models/postsModel");
+const User = require("../models/userModel");
 router.get("/posts", isAuth, async function (req, res, next) {
   const timeSort = req.query.timeSort === "asc" ? "createdAt" : "-createdAt";
   const keyword =
