@@ -1,12 +1,27 @@
 const { Server } = require("socket.io");
 const ChatRoom = require("../models/chatRoomModel");
 module.exports = function (server) {
+  const token = socket.handshake.query.token;
+  if(!token) 
   const io = new Server(server, {
     path: "/socket.io/",
     cors: {
       origin: "*",
     },
   });
+
+  //驗證token
+  io.use((socket, next)=>{
+    const token = socket.handshake.query?.token
+    if(!token){
+      return next(new Error('請重新登入'));
+    }
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded)=>{
+      if (err) return next(new Error('請重新登入'));
+      socket.decoded = decoded;
+      next();
+    })
+  })
 
   //建立連接
   io.of("/chat").on("connection", (socket) => {
@@ -46,6 +61,12 @@ module.exports = function (server) {
     //斷開連接
     socket.on("disconnect", () => {
     });
+  });
+
+  //錯誤處理
+  socket.on('error', function(err){
+    // do something with err
+    socket.emit('error', err)
   });
 
   io.of("/chat").on("connect_error", (err) => {
