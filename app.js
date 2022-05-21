@@ -21,10 +21,11 @@ mongoose
     console.error(error.reason);
   });
 
-var indexRouter = require("./routes/index");
-var usersRouter = require("./routes/users");
-var postsRouter = require("./routes/posts");
-var chatRouter = require("./routes/chat");
+const indexRouter = require("./routes/index");
+const usersRouter = require("./routes/users");
+const postsRouter = require("./routes/posts");
+const chatRouter = require("./routes/chat");
+const uploadRouter = require('./routes/upload');
 var app = express();
 
 process.on("uncaughtException", (error) => {
@@ -43,6 +44,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/chat", chatRouter);
+app.use("/upload", uploadRouter);
 app.use(postsRouter);
 
 //404
