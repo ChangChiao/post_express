@@ -12,14 +12,26 @@ const DB = process.env.DATABASE.replace(
   process.env.DATABASE_PASSWORD
 );
 
-mongoose
-  .connect(DB)
-  .then(() => {
-    console.log("connect success");
-  })
-  .catch((error) => {
-    console.error(error.reason);
-  });
+const connectDatabase = async () => {
+  try {
+    // mongoose.set("useNewUrlParser", true);
+    await mongoose.connect(DB);
+    console.log("connected to database");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+connectDatabase();
+
+// mongoose
+//   .connect(DB)
+//   .then(() => {
+//     console.log("connect success");
+//   })
+//   .catch((error) => {
+//     console.error(error.reason);
+//   });
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");

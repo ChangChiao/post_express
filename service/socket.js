@@ -34,19 +34,21 @@ module.exports = function (server) {
   };
 
   //建立連接
-  io.of('/chat').on("connection", async (socket) => {
+  io.of("/chat").on("connection", async (socket) => {
     const room = socket.handshake.query?.room;
     const token = socket.handshake.query?.token;
-    console.log("877777777777777777", room);
+    // console.log("877777777777777777", room);
     room && socket.join(room);
     let userId = await getUserId(token);
     userId = userId.toString();
     // let userId = '62833a81d3692f15d21af56d'
-    const clients = io.of('/chat').adapter.rooms.get('62863bf54025f20e3d376b34');
-    console.log('io.sockets.adapter.rooms', io.of('/chat').adapter.rooms);
-    console.log('io.sockets.adapter.rooms.has(roomIdentifier)', io.of('/chat').adapter.rooms.has('62863bf54025f20e3d376b34'));
-    console.log('clients', clients);
-    console.log("socket connect", room, userId);
+    const clients = io
+      .of("/chat")
+      .adapter.rooms.get("62863bf54025f20e3d376b34");
+    // console.log('io.sockets.adapter.rooms', io.of('/chat').adapter.rooms);
+    // console.log('io.sockets.adapter.rooms.has(roomIdentifier)', io.of('/chat').adapter.rooms.has('62863bf54025f20e3d376b34'));
+    console.log("clients", clients);
+    // console.log("socket connect", room, userId);
     //加入房間
     // socket.on("super", (msg) => {
     //   console.log("super~~~", msg);
@@ -60,29 +62,77 @@ module.exports = function (server) {
       const { message } = msg;
       const createdAt = Date.now();
       await ChatRoom.findByIdAndUpdate(room, {
-        $push: { messages: { sender:userId, message, createdAt } },
+        $push: { messages: { sender: userId, message, createdAt } },
       });
       //針對該房間廣播訊息
-      io.of('/chat').in(room).emit("chatMessage", msg);
+      io.of("/chat")
+        .to(room)
+        .emit("chatMessage", { message, sender: userId, createdAt });
       console.log("mmmmmmmm", room, userId);
       console.log(`傳來的訊息`, msg);
     });
     //歷史訊息
     socket.on("history", async (info) => {
+      console.log("history", info, room);
       const { lastTime } = info;
       let msgList = [];
       if (lastTime) {
-        msgList = await ChatRoom.find(
-          { _id: room },
-          { messages: { $lt: new Date.now(lastTime), $slice: 30 } }
-        );
+        console.log("lastTime", lastTime);
+        // new Date(lastTime)
+        console.log("ChatRoom", ChatRoom);
+        const [queryResult] = await ChatRoom.aggregate([
+          { $match: { $expr: { $eq: ["$_id", { $toObjectId: room }] } } },
+          {
+            $project: {
+              messages: 1,
+            },
+          },
+          {
+            $project: {
+              messages: {
+                $slice: [
+                  {
+                    $filter: {
+                      input: "$messages",
+                      as: "item",
+                      cond: {
+                        $gt: [
+                          "$$item.createdAt",
+                          new Date(lastTime),
+                        ],
+                        // $eq: ["$$item.sender", "62833a81d3692f15d21af56d"],
+                      },
+                    },
+                  },
+                  30,
+                ],
+              },
+            },
+          },
+        ]);
+        msgList = queryResult.messages
+        console.log("queryResult", queryResult);
+        // msgList = await ChatRoom.find({_id: room}, {messages: {$elemMatch: {'createdAt': { $lt: new Date("2022-05-21T06:35:59.839Z") }}}})
+        // msgList = await ChatRoom.findById(room).where('messages', {$elemMatch: {'createdAt': { $lt: new Date("2022-05-21T06:35:59.839Z") }}})
+        // console.log("msgList", msgList);
+        // msgList = await ChatRoom.find(
+        //   {
+        //     _id: room,
+        //   },
+        //   {
+        //     messages: {
+        //       $elemMatch: { 'sender': "62834466572c43bf1eb3058b" },
+        //     },
+        //   })
+        // ).elemMatch('messages', {sender: '62834466572c43bf1eb3058b'});
       } else {
         msgList = await ChatRoom.find(
           { _id: room },
           { messages: { $slice: 30 } }
         );
-        io.to(room).emit("history", msgList);
+        msgList = msgList[0]?.messages;
       }
+      io.of("/chat").to(room).emit("history", msgList);
     });
     socket.on("leaveRoom", (room) => {
       console.log("leaveRoom~~~", room);
@@ -95,11 +145,11 @@ module.exports = function (server) {
     });
     //斷開連接
     socket.on("disconnect", (socket) => {
-      console.log('socket-disconnect', socket);
+      console.log("socket-disconnect", socket);
     });
   });
 
-  io.of('/chat').on("connect_error", (err) => {
+  io.of("/chat").on("connect_error", (err) => {
     console.log(`connect_error due to ${err.message}`);
   });
 

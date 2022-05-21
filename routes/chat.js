@@ -12,7 +12,7 @@ router.post(
   "/room-info",
   isAuth,
   handleErrorAsync(async (req, res, next) => {
-    const sender = req.user._id;
+    const sender = req.user._id.toString();
     const receiver = req.body.receiver;
     if (!receiver) {
       return next(appError(400, "未填寫聊天對象使用者id", next));
@@ -90,6 +90,7 @@ router.post(
   "/chat-record",
   isAuth,
   handleErrorAsync(async (req, res, next) => {
+    console.log('user._id', req.user._id);
     const [ queryResult ] = await User.aggregate([
       { $match: { _id: req.user._id } },
       {
