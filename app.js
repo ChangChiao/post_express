@@ -5,7 +5,7 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var cors = require("cors");
 const dotenv = require("dotenv");
-const errorList = require('./service/erroList')
+const errorList = require("./service/erroList");
 dotenv.config({ path: "./config.env" });
 const DB = process.env.DATABASE.replace(
   "<password>",
@@ -24,6 +24,7 @@ mongoose
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var postsRouter = require("./routes/posts");
+var chatRouter = require("./routes/chat");
 var app = express();
 
 process.on("uncaughtException", (error) => {
@@ -40,8 +41,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
-app.use("/", usersRouter);
-app.use("/", postsRouter);
+app.use("/users", usersRouter);
+app.use("/chat", chatRouter);
+app.use(postsRouter);
 
 //404
 app.use((req, res, next) => {
@@ -70,8 +72,8 @@ const resErrorPrd = (error, res) => {
 
 // dev env error
 const resErrorDev = (error, res) => {
-  const { stack, message } = error;
-  res.status(500).json({
+  const { stack, message, statusCode } = error;
+  res.status(statusCode).json({
     status: "error",
     message: {
       message,
@@ -84,13 +86,13 @@ const resErrorDev = (error, res) => {
 //error
 app.use((error, req, res, next) => {
   error.statusCode = error.statusCode || 500;
-  if (process.env.NODE_ENV === 'dev'){
+  if (process.env.NODE_ENV === "dev") {
     return resErrorDev(error, res);
   }
-  if(error.name === 'ValidationError'){
+  if (error.name === "ValidationError") {
     error.message = errorList[error.name];
     err.isOperational = true;
-    return resErrorProd(err, res)
+    return resErrorProd(err, res);
   }
   if(error.name === 'CastError'){
     error.message = errorList[error.name];

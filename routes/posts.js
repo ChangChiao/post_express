@@ -3,9 +3,10 @@ const express = require("express");
 const router = express.Router();
 const appError = require("../service/appError");
 const handleErrorAsync = require("../service/handleErrorAsync");
+const { isAuth } = require("../service/auth");
 const Posts = require("../models/posts");
 const User = require("../models/user");
-router.get("/posts", async function (req, res, next) {
+router.get("/posts", isAuth, async function (req, res, next) {
   const timeSort = req.query.timeSort === "asc" ? "createdAt" : "-createdAt";
   const keyword =
     req.query.keyword !== undefined
@@ -24,25 +25,27 @@ router.get("/posts", async function (req, res, next) {
 
 const checkAddParam = handleErrorAsync(async (req, res, next) => {
   const { content, user } = req.body;
-  if (user === undefined || content === undefined) {
+  if (content === undefined) {
     return next(appError(400, "參數有缺", next));
   }
-  next()
+  next();
 });
 
 router.post(
   "/post",
+  isAuth,
   checkAddParam,
   handleErrorAsync(async function (req, res, next) {
-    const { content, image, cover, user } = req.body;
-    const checkUser = await User.findById(user).exec();
-    if(!checkUser){
+    const { _id } = req.user;
+    const { content, image, cover } = req.body;
+    const checkUser = await User.findById(_id).exec();
+    if (!checkUser) {
       return next(appError(400, "使用者不存在", next));
     }
     const newPost = await Posts.create({
       content,
       image,
-      user,
+      user: _id,
       cover,
     });
     res
@@ -63,7 +66,7 @@ router.patch(
     const { id } = req.params;
     const { name, content } = req.body;
     if (name === undefined || content === undefined) {
-      return next(appError(400, '參數有缺', next))
+      return next(appError(400, "參數有缺", next));
       // res.status(400).json({ message: "參數有缺", status: "fail" });
       // return;
     }
