@@ -129,7 +129,7 @@ module.exports = function (server) {
         );
         msgList = msgList[0]?.messages;
       }
-      io.of("/chat").to(room).emit("history", msgList);
+      socket.emit("history", msgList);
     });
     socket.on("leaveRoom", (room) => {
       console.log("leaveRoom~~~", room);
