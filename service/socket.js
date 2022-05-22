@@ -37,7 +37,7 @@ module.exports = function (server) {
   io.of("/chat").on("connection", async (socket) => {
     const room = socket.handshake.query?.room;
     const token = socket.handshake.query?.token;
-    // console.log("877777777777777777", room);
+    console.log("connection----", room);
     room && socket.join(room);
     let userId = await getUserId(token);
     userId = userId.toString();
@@ -68,7 +68,7 @@ module.exports = function (server) {
       io.of("/chat")
         .to(room)
         .emit("chatMessage", { message, sender: userId, createdAt });
-      console.log("mmmmmmmm", room, userId);
+      console.log("userInfo", room, userId);
       console.log(`傳來的訊息`, msg);
     });
     //歷史訊息
@@ -78,8 +78,6 @@ module.exports = function (server) {
       let msgList = [];
       if (lastTime) {
         console.log("lastTime", lastTime);
-        // new Date(lastTime)
-        console.log("ChatRoom", ChatRoom);
         const [queryResult] = await ChatRoom.aggregate([
           { $match: { $expr: { $eq: ["$_id", { $toObjectId: room }] } } },
           {
@@ -96,7 +94,7 @@ module.exports = function (server) {
                       input: "$messages",
                       as: "item",
                       cond: {
-                        $gt: [
+                        $lt: [
                           "$$item.createdAt",
                           new Date(lastTime),
                         ],
@@ -111,7 +109,6 @@ module.exports = function (server) {
           },
         ]);
         msgList = queryResult.messages
-        console.log("queryResult", queryResult);
         // msgList = await ChatRoom.find({_id: room}, {messages: {$elemMatch: {'createdAt': { $lt: new Date("2022-05-21T06:35:59.839Z") }}}})
         // msgList = await ChatRoom.findById(room).where('messages', {$elemMatch: {'createdAt': { $lt: new Date("2022-05-21T06:35:59.839Z") }}})
         // console.log("msgList", msgList);
@@ -128,7 +125,7 @@ module.exports = function (server) {
       } else {
         msgList = await ChatRoom.find(
           { _id: room },
-          { messages: { $slice: 30 } }
+          { messages: { $slice: -30 } }
         );
         msgList = msgList[0]?.messages;
       }
