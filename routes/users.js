@@ -9,7 +9,7 @@ const { isAuth, generateSendJWT } = require("../service/auth");
 const User = require("../models/userModel");
 
 router.post(
-  "/sign_up",
+  "/sign-up",
   handleErrorAsync(async (req, res, next) => {
     const { email, password, userName } = req.body;
     if (!email || !password || !userName) {
@@ -41,7 +41,7 @@ router.post(
 );
 
 router.post(
-  "/sign_in",
+  "/sign-in",
   handleErrorAsync(async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
