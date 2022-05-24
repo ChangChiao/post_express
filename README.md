@@ -9,4 +9,8 @@ DATABASE=mongodb+srv://account:<password>@cluster0.s2upn.mongodb.net/postList?re
 DATABASE_PASSWORD=password
 JWT_SECRET=your secret
 JWT_EXPIRES_DAY=7d
+IMGUR_CLIENTID=
+IMGUR_CLIENT_SECRET=
+IMGUR_REFRESH_TOKEN=
+IMGUR_ALBUM_ID=
 ```
