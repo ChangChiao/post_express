@@ -47,6 +47,15 @@ module.exports = function (server) {
     // console.log('io.sockets.adapter.rooms', io.of('/chat').adapter.rooms);
     // console.log('io.sockets.adapter.rooms.has(roomIdentifier)', io.of('/chat').adapter.rooms.has('62863bf54025f20e3d376b34'));
     console.log("clients", clients);
+
+    socket.use(([ event, payload ], next) => {
+      console.log("payload", payload);
+      if (payload?.message?.length > 10) {
+        return next(new Error("您輸入的內容過長"));
+      }
+      next();
+    });
+
     // 監聽 client發來的訊息
     socket.on("chatMessage", async (msg) => {
       const { message } = msg;
@@ -84,10 +93,7 @@ module.exports = function (server) {
                       input: "$messages",
                       as: "item",
                       cond: {
-                        $lt: [
-                          "$$item.createdAt",
-                          new Date(lastTime),
-                        ],
+                        $lt: ["$$item.createdAt", new Date(lastTime)],
                         // $eq: ["$$item.sender", "62833a81d3692f15d21af56d"],
                       },
                     },
@@ -98,7 +104,7 @@ module.exports = function (server) {
             },
           },
         ]);
-        msgList = queryResult.messages
+        msgList = queryResult.messages;
         // msgList = await ChatRoom.find({_id: room}, {messages: {$elemMatch: {'createdAt': { $lt: new Date("2022-05-21T06:35:59.839Z") }}}})
         // msgList = await ChatRoom.findById(room).where('messages', {$elemMatch: {'createdAt': { $lt: new Date("2022-05-21T06:35:59.839Z") }}})
         // console.log("msgList", msgList);
@@ -126,9 +132,8 @@ module.exports = function (server) {
       socket.leave(room);
     });
     //錯誤處理
-    socket.on("error", function (err) {
-      // do something with err
-      socket.emit("error", err);
+    socket.on("error", (err) => {
+      socket.emit("error", err.message);
     });
     //斷開連接
     socket.on("disconnect", (socket) => {
