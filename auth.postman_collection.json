@@ -224,6 +224,42 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "upload image",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyOGMzYTQ3NmU1NjE4OGRhMGFlYzZjNyIsImlhdCI6MTY1MzM3MTc0MCwiZXhwIjoxNjUzOTc2NTQwfQ.FCYkv_m99UWzthXcVABsjlM0yhxSy2Xhozp1E4-W8_U",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "img",
+							"type": "file",
+							"src": "/C:/Users/joe/Downloads/img.png"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/upload",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"upload"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
