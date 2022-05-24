@@ -50,7 +50,7 @@ module.exports = function (server) {
 
     socket.use(([ event, payload ], next) => {
       console.log("payload", payload);
-      if (payload?.message?.length > 10) {
+      if (payload?.message?.length > 100) {
         return next(new Error("您輸入的內容過長"));
       }
       next();
