@@ -6,13 +6,13 @@ const router = express.Router();
 const appError = require("../service/appError");
 const handleErrorAsync = require("../service/handleErrorAsync");
 const { isAuth, generateSendJWT } = require("../service/auth");
-const User = require("../models/user");
+const User = require("../models/userModel");
 
 router.post(
-  "/sign_up",
+  "/sign-up",
   handleErrorAsync(async (req, res, next) => {
-    const { email, password, userName } = req.body;
-    if (!email || !password || !userName) {
+    const { email, password, name } = req.body;
+    if (!email || !password || !name) {
       return next(appError(400, "欄位資料有缺", next));
     }
     // if (password !== confirmPassword) {
@@ -34,14 +34,14 @@ router.post(
     const newUser = await User.create({
       email,
       password: hashPassword,
-      userName,
+      name,
     });
     generateSendJWT(newUser, 201, res);
   })
 );
 
 router.post(
-  "/sign_in",
+  "/sign-in",
   handleErrorAsync(async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -87,20 +87,38 @@ router.patch(
   "/profile",
   isAuth,
   handleErrorAsync(async (req, res, next) => {
-    const { userName, gender, avatar } = req.body;
+    const { name, gender, avatar } = req.body;
     const updateUser = await User.findByIdAndUpdate(
       req.user._id,
-      { userName, gender, avatar },
+      { name, gender, avatar },
       { new: true }
     );
     res.status(200).json({
       status: "success",
       user: updateUser,
     });
+    const { password, confirmPassword } = req.body;
+    if (password !== confirmPassword) {
+      return next(appError(400, "密碼不一致", next));
+    }
+    newPassword = await bcrypt.hash(password, 12);
+    const user = await User.findByIdAndUpdate(req.user.id, {
+      password: newPassword,
+    });
+    generateSendJWT(user, 200, res);
   })
 );
 
 //TODO for test
+
+router.get("/chat-record", isAuth, async (req, res, next) => {
+  const targetUser = await User.findById(req.user)
+  const chatRecord = targetUser.chatRecord;
+  res.status(200).json({ message: "success", chatRecord });
+});
+
+
+//for test
 router.get("/all", async (req, res, next) => {
   const userList = await User.find();
   res.status(200).json({ message: "success", user: userList });

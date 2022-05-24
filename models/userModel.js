@@ -1,7 +1,21 @@
 const mongoose = require("mongoose");
+
+const chatRecord = new mongoose.Schema({
+  roomId: {
+    type: mongoose.Schema.ObjectId,
+    ref: "ChatRoom",
+    // required: true,
+    // unique: true
+  },
+  receiver: {
+    type: mongoose.Schema.ObjectId,
+    ref: "User",
+  }
+})
+
 const userSchema = new mongoose.Schema(
   {
-    userName: {
+    name: {
       type: String,
     },
     email: {
@@ -34,6 +48,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       select: false,
     },
+    chatRecord: {
+      type: [chatRecord],
+      default: []
+    }
   },
   {
     versionKey: false,

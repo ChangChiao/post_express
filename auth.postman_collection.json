@@ -42,7 +42,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"userName\":\"joe\",\"email\":\"joe10@gmail.com\",\"password\":\"12345678\"}",
+					"raw": "{\"name\":\"joe\",\"email\":\"joe10@gmail.com\",\"password\":\"12345678\"}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -141,7 +141,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"userName\":\"mary\",\"gender\":\"female\",\"avatar\":\"https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/14.jpg\"}",
+					"raw": "{\"name\":\"mary\",\"gender\":\"female\",\"avatar\":\"https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/14.jpg\"}",
 					"options": {
 						"raw": {
 							"language": "json"

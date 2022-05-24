@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const express = require("express")
 const appError = require("./appError");
 const handleErrorAsync = require("./handleErrorAsync");
-const User = require("../models/user");
+const User = require("../models/userModel");
 
 const isAuth = handleErrorAsync(async(req, res, next) => {
     let token;
@@ -21,6 +21,11 @@ const isAuth = handleErrorAsync(async(req, res, next) => {
         })
     })
     const currentUser = await User.findById(decodedToken.id);
+    // const _id = currentUser._id.toString()
+    // req.user = {
+    //     ...currentUser,
+    //     _id,
+    // };
     req.user = currentUser;
     next();
 })
@@ -36,7 +41,7 @@ const generateSendJWT = (user, statusCode, res) => {
         status: "success",
         user: {
             token,
-            userName: user.userName
+            name: user.name
         }
     })
 }
