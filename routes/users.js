@@ -11,8 +11,8 @@ const User = require("../models/userModel");
 router.post(
   "/sign-up",
   handleErrorAsync(async (req, res, next) => {
-    const { email, password, userName } = req.body;
-    if (!email || !password || !userName) {
+    const { email, password, name } = req.body;
+    if (!email || !password || !name) {
       return next(appError(400, "欄位資料有缺", next));
     }
     // if (password !== confirmPassword) {
@@ -34,7 +34,7 @@ router.post(
     const newUser = await User.create({
       email,
       password: hashPassword,
-      userName,
+      name,
     });
     generateSendJWT(newUser, 201, res);
   })
@@ -87,10 +87,10 @@ router.patch(
   "/profile",
   isAuth,
   handleErrorAsync(async (req, res, next) => {
-    const { userName, gender, avatar } = req.body;
+    const { name, gender, avatar } = req.body;
     const updateUser = await User.findByIdAndUpdate(
       req.user._id,
-      { userName, gender, avatar },
+      { name, gender, avatar },
       { new: true }
     );
     res.status(200).json({

@@ -26,13 +26,16 @@ router.post(
         (item) => item.receiver.toString() === receiver
       ) || {};
     const receiverUser = await User.findById(receiver)
-    const { userName, avatar, _id } = receiverUser
+    if(!receiverUser){
+        return next(appError(400, "沒有這個人喔", next));
+    }
+    const { name, avatar, _id } = receiverUser
     //已經有聊天記錄就直接回傳id
     if (receiverRecord) {
       res.status(200).json({
         status: "success",
         roomId,
-        userName, 
+        name, 
         avatar,
         _id
       });
@@ -50,7 +53,7 @@ router.post(
       res.status(200).json({
         status: "success",
         roomId: newRoom._id,
-        userName, 
+        name, 
         avatar,
         _id
       });

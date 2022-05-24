@@ -15,7 +15,7 @@ const chatRecord = new mongoose.Schema({
 
 const userSchema = new mongoose.Schema(
   {
-    userName: {
+    name: {
       type: String,
     },
     email: {

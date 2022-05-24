@@ -15,7 +15,7 @@ router.get("/posts", isAuth, async function (req, res, next) {
   const postList = await Posts.find(keyword)
     .populate({
       path: "user",
-      select: "userName gender avatar",
+      select: "name gender avatar",
     })
     .sort(timeSort);
   res

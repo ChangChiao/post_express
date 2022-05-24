@@ -41,22 +41,12 @@ module.exports = function (server) {
     room && socket.join(room);
     let userId = await getUserId(token);
     userId = userId.toString();
-    // let userId = '62833a81d3692f15d21af56d'
     const clients = io
       .of("/chat")
       .adapter.rooms.get("62863bf54025f20e3d376b34");
     // console.log('io.sockets.adapter.rooms', io.of('/chat').adapter.rooms);
     // console.log('io.sockets.adapter.rooms.has(roomIdentifier)', io.of('/chat').adapter.rooms.has('62863bf54025f20e3d376b34'));
     console.log("clients", clients);
-    // console.log("socket connect", room, userId);
-    //加入房間
-    // socket.on("super", (msg) => {
-    //   console.log("super~~~", msg);
-    // });
-    // socket.on("joinRoom", (room) => {
-    //   console.log("joinRoom~~~", room);
-    //  socket.join(room);
-    // });
     // 監聽 client發來的訊息
     socket.on("chatMessage", async (msg) => {
       const { message } = msg;
