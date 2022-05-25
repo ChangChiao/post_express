@@ -94,66 +94,118 @@ router.post(
   isAuth,
   handleErrorAsync(async (req, res, next) => {
     console.log('user._id', req.user._id);
-    const [ queryResult ] = await User.aggregate([
+    const queryResult = await User.aggregate([
       { $match: { _id: req.user._id } },
       {
         $project: { chatRecord: 1 },
       },
       {
-        $lookup: {
-          from: "users",
-          localField: "chatRecord.receiver",
-          foreignField: "_id",
-          as: "receivers",
-        },
+        $unwind: "$chatRecord"
       },
       {
         $lookup: {
           from: "chatrooms",
-          localField: "chatRecord.roomId",
-          foreignField: "_id",
-          as: "room",
-        },
-      },
-      {
-        $addFields: {
-          receivers: "$$REMOVE",
-          room: "$$REMOVE",
-          chatRecord: {
-            $map: {
-              input: "$room",
-              as: "ele",
-              in: {
-                $mergeObjects: [
-                  {
-                    roomId: "$$ele._id",
-                    message: { $slice: ["$$ele.messages", -1] },
-                  },
-                  {
-                    $arrayElemAt: [
-                      {
-                        $filter: {
-                          input: "$receivers",
-                          as: "receiver",
-                          cond: { $in: ["$$receiver._id", "$$ele.members"] },
-                        },
-                      },
-                      0,
-                    ],
-                  },
-                ],
-              },
-            },
+          let: {
+            roomId: "$chatRecord.roomId",
+            chatRecord: "$chatRecord"
           },
-        },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$roomId" ] } } },
+            {
+              $project: { messages: 1, _id: 0 },
+            },
+            // { $replaceRoot: { newRoot: { $mergeObjects: [ $message , $$ROOT] } } }
+            { $replaceRoot: { newRoot: {message: { $slice: ["$messages", -1],  } } } }
+          ],
+          as: "message"
+        }
       },
       {
-        $project: { "chatRecord.password": 0, "chatRecord.email": 0, "chatRecord.createdAt": 0, 'chatRecord.chatRecord':0},
+        $lookup: {
+          from: "users",
+          let: {
+            receiverId: "$chatRecord.receiver",
+            chatRecord: "$chatRecord"
+          },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$receiverId" ] } } },
+            {
+              $project: { avatar: 1, name:1, _id: 0, },
+            },
+          ],
+          as: "user"
+        }
       },
-    ]);
+      {
+        $unwind: "$message"
+      },
+      {
+        $unwind: "$user"
+      },
+      {
+        $replaceRoot: { newRoot:  { message: "$message.message", avatar: "$user.avatar", name: "$user.name", roomId: "$chatRecord.roomId"  }}
+      },
+    ])
+    // const [ queryResult ] = await User.aggregate([
+    //   { $match: { _id: req.user._id } },
+    //   {
+    //     $project: { chatRecord: 1 },
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "users",
+    //       localField: "chatRecord.receiver",
+    //       foreignField: "_id",
+    //       as: "receivers",
+    //     },
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "chatrooms",
+    //       localField: "chatRecord.roomId",
+    //       foreignField: "_id",
+    //       as: "room",
+    //     },
+    //   },
+    //   {
+    //     $addFields: {
+    //       receivers: "$$REMOVE",
+    //       room: "$$REMOVE",
+    //       chatRecord: {
+    //         $map: {
+    //           input: "$room",
+    //           as: "ele",
+    //           in: {
+    //             $mergeObjects: [
+    //               {
+    //                 roomId: "$$ele._id",
+    //                 message: { $slice: ["$$ele.messages", -1] },
+    //               },
+    //               {
+    //                 $arrayElemAt: [
+    //                   {
+    //                     $filter: {
+    //                       input: "$receivers",
+    //                       as: "receiver",
+    //                       cond: { $in: ["$$receiver._id", "$$ele.members"] },
+    //                     },
+    //                   },
+    //                   0,
+    //                 ],
+    //               },
+    //             ],
+    //           },
+    //         },
+    //       },
+    //     },
+    //   },
+    //   {
+    //     $project: { "chatRecord.password": 0, "chatRecord.email": 0, "chatRecord.createdAt": 0, 'chatRecord.chatRecord':0},
+    //   },
+    // ]);
     res
       .status(200)
-      .json({ status: "success", chatRecord: queryResult?.chatRecord });
+      .json({ status: "success", chatRecord: queryResult });
   })
 );
 
