@@ -26,10 +26,12 @@ const postSchema = new mongoose.Schema(
       type: Array,
       default: [],
     },
-    likes: {
-      type: Number,
-      default: 0,
-    },
+    likes: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   {
     versionKey: false,

@@ -95,13 +95,40 @@ router.patch(
 router.post(
   "/:id/likes",
   isAuth,
-  handleErrorAsync(async (req, res, next) => {})
+  handleErrorAsync(async (req, res, next) => {
+    const id = req.params.id;
+    await Posts.findByIdAndUpdate(
+      { _id: id },
+      {
+        $addToSet: { likes: req.user._id },
+      }
+    );
+    res.status(201).json({
+      status: "success",
+      postId: id,
+      userId: req.user._id,
+    });
+  })
 );
 
+//取消讚
 router.delete(
   "/:id/likes",
   isAuth,
-  handleErrorAsync(async (req, res, next) => {})
+  handleErrorAsync(async (req, res, next) => {
+    const id = req.params.id;
+    await Posts.findByIdAndUpdate(
+      { _id: id },
+      {
+        $pull: { likes: req.user._id },
+      }
+    );
+    res.status(200).json({
+      status: "success",
+      postId: id,
+      userId: req.user._id,
+    });
+  })
 );
 
 //追蹤
@@ -195,7 +222,7 @@ router.delete(
   handleErrorAsync(async function (req, res, next) {
     const { id } = req.params;
     await Posts.findByIdAndDelete(id);
-    res.status(200).json({ message: "success", status: "success" });
+    res.status(201).json({ message: "success", status: "success" });
   })
 );
 
