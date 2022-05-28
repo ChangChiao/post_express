@@ -7,6 +7,7 @@ const appError = require("../service/appError");
 const handleErrorAsync = require("../service/handleErrorAsync");
 const { isAuth, generateSendJWT } = require("../service/auth");
 const User = require("../models/userModel");
+const Posts = require("../models/postsModel");
 
 router.post(
   "/sign-up",
@@ -49,7 +50,7 @@ router.post(
     }
     //密碼取出比對
     const user = await User.findOne({ email }).select("+password");
-    if(!user){
+    if (!user) {
       return next(appError(401, "您的帳號或密碼不正確", next));
     }
     const auth = await bcrypt.compare(password, user.password);
@@ -109,14 +110,32 @@ router.patch(
   })
 );
 
+//取得按讚列表
+router.get(
+  "/like-list",
+  isAuth,
+  handleErrorAsync(async (req, res, next) => {
+    const likeList = await Posts.find({
+      likes: { $in: [req.user.id] },
+    }).populate({
+      path: "user",
+      select: "name avatar",
+    });
+
+    res.status(200).json({
+      status: 'success',
+      likeList
+    })
+  })
+);
+
 //TODO for test
 
 router.get("/chat-record", isAuth, async (req, res, next) => {
-  const targetUser = await User.findById(req.user)
+  const targetUser = await User.findById(req.user);
   const chatRecord = targetUser.chatRecord;
   res.status(200).json({ message: "success", chatRecord });
 });
-
 
 //for test
 router.get("/all", async (req, res, next) => {

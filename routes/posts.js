@@ -7,7 +7,7 @@ const { isAuth } = require("../service/auth");
 const Posts = require("../models/postsModel");
 const User = require("../models/userModel");
 // 取得貼文列表
-router.get("/posts", isAuth, async function (req, res, next) {
+router.get("/", isAuth, async function (req, res, next) {
   const timeSort = req.query.timeSort === "asc" ? "createdAt" : "-createdAt";
   const keyword =
     req.query.keyword !== undefined
@@ -28,6 +28,13 @@ router.get("/posts", isAuth, async function (req, res, next) {
     .json({ message: "success", status: "success", posts: postList });
 });
 
+// 取得個人的貼文
+router.get("/user/:id", isAuth, async function (req, res, next) {
+  const user = req.params.id;
+  const posts = await Posts.find({ user });
+  res.status(200).json({ status: "success", posts });
+});
+
 const checkAddParam = handleErrorAsync(async (req, res, next) => {
   const { content, user } = req.body;
   if (content === undefined) {
@@ -38,7 +45,7 @@ const checkAddParam = handleErrorAsync(async (req, res, next) => {
 
 // 新增貼文
 router.post(
-  "/post",
+  "/",
   isAuth,
   checkAddParam,
   handleErrorAsync(async function (req, res, next) {
@@ -68,7 +75,7 @@ const checkReviseParam = handleErrorAsync(async (req, res, next) => {
 
 //修改貼文
 router.patch(
-  "/post/:id",
+  "/:id",
   handleErrorAsync(async function (req, res, next) {
     const { id } = req.params;
     const { name, content } = req.body;
@@ -198,7 +205,7 @@ router.delete(
 
 //新增留言
 router.post(
-  "/post/:id/comment".isAuth,
+  "/:id/comment".isAuth,
   handleErrorAsync(async (req, res, next) => {
     const user = req.user._id;
     const post = req.params.id;
@@ -218,7 +225,7 @@ router.post(
 );
 
 router.delete(
-  "/post/:id",
+  "/:id",
   handleErrorAsync(async function (req, res, next) {
     const { id } = req.params;
     await Posts.findByIdAndDelete(id);
@@ -227,7 +234,7 @@ router.delete(
 );
 
 router.delete(
-  "/posts",
+  "/",
   handleErrorAsync(async function (req, res, next) {
     await Posts.deleteMany({});
     res.status(200).json({ message: "success", status: "success", posts: [] });

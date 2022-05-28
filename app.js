@@ -57,7 +57,7 @@ app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/chat", chatRouter);
 app.use("/upload", uploadRouter);
-app.use(postsRouter);
+app.use("/posts", postsRouter);
 //404
 app.use((req, res, next) => {
   res.status(404).json({
