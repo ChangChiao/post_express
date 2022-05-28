@@ -20,11 +20,11 @@ const postSchema = new mongoose.Schema(
     createdAt: {
       type: Date,
       default: Date.now,
-      select: true
+      select: true,
     },
     replies: {
       type: Array,
-      default: []
+      default: [],
     },
     likes: {
       type: Number,
@@ -33,8 +33,16 @@ const postSchema = new mongoose.Schema(
   },
   {
     versionKey: false,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
+
+postSchema.virtual("comments", {
+  ref: "Comment",
+  foreignField: "post",
+  localField: "_id",
+});
 
 const Posts = mongoose.model("Posts", postSchema);
 module.exports = Posts;

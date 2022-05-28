@@ -6,6 +6,7 @@ const handleErrorAsync = require("../service/handleErrorAsync");
 const { isAuth } = require("../service/auth");
 const Posts = require("../models/postsModel");
 const User = require("../models/userModel");
+// 取得貼文列表
 router.get("/posts", isAuth, async function (req, res, next) {
   const timeSort = req.query.timeSort === "asc" ? "createdAt" : "-createdAt";
   const keyword =
@@ -16,6 +17,10 @@ router.get("/posts", isAuth, async function (req, res, next) {
     .populate({
       path: "user",
       select: "name gender avatar",
+    })
+    .populate({
+      path: "comments",
+      select: "comment user",
     })
     .sort(timeSort);
   res
@@ -31,6 +36,7 @@ const checkAddParam = handleErrorAsync(async (req, res, next) => {
   next();
 });
 
+// 新增貼文
 router.post(
   "/post",
   isAuth,
@@ -60,6 +66,7 @@ const checkReviseParam = handleErrorAsync(async (req, res, next) => {
   }
 });
 
+//修改貼文
 router.patch(
   "/post/:id",
   handleErrorAsync(async function (req, res, next) {
@@ -82,6 +89,43 @@ router.patch(
     } else {
       res.status(400).json({ message: "無此id", status: "fail" });
     }
+  })
+);
+//按讚
+router.post(
+  "/:id/likes",
+  isAuth,
+  handleErrorAsync(async () => {
+
+  })
+);
+
+router.delete(
+  "/:id/likes",
+  isAuth,
+  handleErrorAsync(async () => {
+    
+  })
+);
+
+//新增留言
+router.post(
+  "/post/:id/comment".isAuth,
+  handleErrorAsync(async (req, res, next) => {
+    const user = req.user._id;
+    const post = req.params.id;
+    const { comment } = req.body;
+    const newComment = await Posts.create({
+      post,
+      user,
+      comment,
+    });
+    res.status(201).json({
+      status: "success",
+      data: {
+        comment: newComment,
+      },
+    });
   })
 );
 
