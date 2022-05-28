@@ -10,8 +10,8 @@ const chatRecord = new mongoose.Schema({
   receiver: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
-  }
-})
+  },
+});
 
 const userSchema = new mongoose.Schema(
   {
@@ -34,11 +34,12 @@ const userSchema = new mongoose.Schema(
     gender: {
       type: String,
       enum: ["male", "female"],
-      default: "male"
+      default: "male",
     },
     avatar: {
       type: String,
-      default: "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/14.jpg",
+      default:
+        "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/14.jpg",
     },
     createdAt: {
       type: Date,
@@ -50,8 +51,17 @@ const userSchema = new mongoose.Schema(
     },
     chatRecord: {
       type: [chatRecord],
-      default: []
-    }
+      default: [],
+    },
+    following: [
+      {
+        user: { type: mongoose.Schema.ObjectId, ref: "User" },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   {
     versionKey: false,
