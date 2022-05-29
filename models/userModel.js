@@ -53,6 +53,15 @@ const userSchema = new mongoose.Schema(
       type: [chatRecord],
       default: [],
     },
+    followers: [
+      {
+        user: { type: mongoose.Schema.ObjectId, ref: "User" },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
     following: [
       {
         user: { type: mongoose.Schema.ObjectId, ref: "User" },

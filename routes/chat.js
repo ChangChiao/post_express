@@ -20,30 +20,33 @@ router.post(
     if (sender === receiver) {
       return next(appError(400, "自己不能跟自己聊天！", next));
     }
+    const receiverUser = await User.findById(receiver);
+    if (!receiverUser) {
+      return next(appError(400, "沒有這個人喔", next));
+    }
     const queryResult = await User.findById(sender).select("chatRecord");
+    console.log("queryResult", queryResult);
     const { receiver: receiverRecord, roomId } =
       queryResult?.chatRecord.find(
         (item) => item.receiver.toString() === receiver
       ) || {};
-    const receiverUser = await User.findById(receiver)
-    if(!receiverUser){
-        return next(appError(400, "沒有這個人喔", next));
-    }
-    const { name, avatar, _id } = receiverUser
+    const { name, avatar, _id } = receiverUser;
     //已經有聊天記錄就直接回傳id
+    console.log("receiverRecord", receiverRecord);
     if (receiverRecord) {
       res.status(200).json({
         status: "success",
         roomId,
-        name, 
+        name,
         avatar,
-        _id
+        _id,
       });
     } else {
-    //沒有聊天記錄就新建房間
+      //沒有聊天記錄就新建房間
       const newRoom = await ChatRoom.create({
         members: [ObjectId(sender), ObjectId(receiver)],
       });
+      console.log("newRoom", newRoom);
       await User.findByIdAndUpdate(sender, {
         $push: { chatRecord: { roomId: newRoom._id, receiver: receiver } },
       });
@@ -53,9 +56,9 @@ router.post(
       res.status(200).json({
         status: "success",
         roomId: newRoom._id,
-        name, 
+        name,
         avatar,
-        _id
+        _id,
       });
     }
   })
@@ -68,6 +71,17 @@ router.delete(
     const { id } = req.params;
     await User.findOneAndUpdate({ _id: id }, { chatRecord: [] });
     res.status(200).json({ message: "success" });
+  })
+);
+
+// TODO for test
+router.delete(
+  "/all/chat-record",
+  handleErrorAsync(async (req, res, next) => {
+    // const { id } = req.params;
+    await User.updateMany({}, { $set: { chatRecord: [] } });
+    const users = await User.find()
+    res.status(200).json({ message: "success", users });
   })
 );
 
@@ -87,65 +101,75 @@ router.get("/all", async (req, res, next) => {
   res.status(200).json({ message: "success", chatRecord: chatRecord });
 });
 
-
 //取得聊天記錄
 router.post(
   "/chat-record",
   isAuth,
   handleErrorAsync(async (req, res, next) => {
-    console.log('user._id', req.user._id);
+    console.log("user._id", req.user._id);
     const queryResult = await User.aggregate([
       { $match: { _id: req.user._id } },
       {
         $project: { chatRecord: 1 },
       },
       {
-        $unwind: "$chatRecord"
+        $unwind: "$chatRecord",
       },
       {
         $lookup: {
           from: "chatrooms",
           let: {
             roomId: "$chatRecord.roomId",
-            chatRecord: "$chatRecord"
+            chatRecord: "$chatRecord",
           },
           pipeline: [
-            { $match: { $expr: { $eq: ["$_id", "$$roomId" ] } } },
+            { $match: { $expr: { $eq: ["$_id", "$$roomId"] } } },
             {
               $project: { messages: 1, _id: 0 },
             },
             // { $replaceRoot: { newRoot: { $mergeObjects: [ $message , $$ROOT] } } }
-            { $replaceRoot: { newRoot: {message: { $slice: ["$messages", -1],  } } } }
+            {
+              $replaceRoot: {
+                newRoot: { message: { $slice: ["$messages", -1] } },
+              },
+            },
           ],
-          as: "message"
-        }
+          as: "message",
+        },
       },
       {
         $lookup: {
           from: "users",
           let: {
             receiverId: "$chatRecord.receiver",
-            chatRecord: "$chatRecord"
+            chatRecord: "$chatRecord",
           },
           pipeline: [
-            { $match: { $expr: { $eq: ["$_id", "$$receiverId" ] } } },
+            { $match: { $expr: { $eq: ["$_id", "$$receiverId"] } } },
             {
-              $project: { avatar: 1, name:1, _id: 0, },
+              $project: { avatar: 1, name: 1, _id: 0 },
             },
           ],
-          as: "user"
-        }
+          as: "user",
+        },
       },
       {
-        $unwind: "$message"
+        $unwind: "$message",
       },
       {
-        $unwind: "$user"
+        $unwind: "$user",
       },
       {
-        $replaceRoot: { newRoot:  { message: "$message.message", avatar: "$user.avatar", name: "$user.name", roomId: "$chatRecord.roomId"  }}
+        $replaceRoot: {
+          newRoot: {
+            message: "$message.message",
+            avatar: "$user.avatar",
+            name: "$user.name",
+            roomId: "$chatRecord.roomId",
+          },
+        },
       },
-    ])
+    ]);
     // const [ queryResult ] = await User.aggregate([
     //   { $match: { _id: req.user._id } },
     //   {
@@ -203,9 +227,7 @@ router.post(
     //     $project: { "chatRecord.password": 0, "chatRecord.email": 0, "chatRecord.createdAt": 0, 'chatRecord.chatRecord':0},
     //   },
     // ]);
-    res
-      .status(200)
-      .json({ status: "success", chatRecord: queryResult });
+    res.status(200).json({ status: "success", chatRecord: queryResult });
   })
 );
 

@@ -84,6 +84,16 @@ router.get("/profile", isAuth, (req, res, next) => {
   });
 });
 
+//取得他人資訊
+router.get("/profile/:id", isAuth, async (req, res, next) => {
+  const _id = req.params.id;
+  const user = await User.findById(_id);
+  res.status(200).json({
+    status: "success",
+    user,
+  });
+});
+
 router.patch(
   "/profile",
   isAuth,
@@ -123,9 +133,123 @@ router.get(
     });
 
     res.status(200).json({
-      status: 'success',
-      
-    })
+      status: "success",
+      likeList,
+    });
+  })
+);
+
+//取得追蹤列表
+router.get(
+  "/following",
+  isAuth,
+  handleErrorAsync(async (req, res, next) => {
+    const _id = req.user._id;
+    // const following = await User.findById(_id).select("following")
+    const following = await User.aggregate([
+      { $match: { _id: req.user._id } },
+      {
+        $project: { following: 1 },
+      },
+      {
+        $unwind: "$following",
+      },
+      {
+        $lookup: {
+          from: "users",
+          // localField: "following.user",
+          // foreignField: "_id",
+          let: {
+            user: "$following.user",
+          },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$user"] } } },
+            {
+              $project: { avatar: 1, name: 1, _id: 0 },
+            },
+          ],
+          as: "follower",
+        },
+      },
+      {
+        $unwind: "$follower",
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            user: "$follower",
+            createdAt: "$following.createdAt",
+          },
+        },
+      },
+    ]);
+    console.log("following---", following);
+    res.status(200).json({ message: "success", status: "success", following });
+  })
+);
+
+//追蹤
+router.post(
+  "/:id/follow",
+  isAuth,
+  handleErrorAsync(async (req, res, next) => {
+    if (req.params.id === req.user._id) {
+      return next(appError(401, "您無法追蹤自己", next));
+    }
+    await User.updateOne(
+      {
+        _id: req.user._id,
+        "following.user": { $ne: req.params.id },
+      },
+      {
+        $addToSet: { following: { user: req.params.id } },
+      }
+    );
+    await User.updateOne(
+      {
+        _id: req.params.id,
+        "followers.user": { $ne: req.user._id },
+      },
+      {
+        $addToSet: { followers: { user: req.user._id } },
+      }
+    );
+
+    res.status(200).json({
+      status: "success",
+      message: "追蹤成功！",
+    });
+  })
+);
+
+// 退追蹤
+router.delete(
+  "/:id/unfollow",
+  isAuth,
+  handleErrorAsync(async (req, res, next) => {
+    if (req.params.id === req.user._id) {
+      return next(appError(401, "您無法取消追蹤自己", next));
+    }
+    await User.updateOne(
+      {
+        _id: req.user.id,
+      },
+      {
+        $pull: { following: { user: req.params.id } },
+      }
+    );
+    await User.updateOne(
+      {
+        _id: req.params.id,
+      },
+      {
+        $pull: { followers: { user: req.user._id } },
+      }
+    );
+    res.status(200).json({
+      status: "success",
+      message: "成功取消追蹤",
+    });
   })
 );
 

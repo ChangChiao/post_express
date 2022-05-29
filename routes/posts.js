@@ -21,7 +21,7 @@ router.get("/", isAuth, async function (req, res, next) {
     })
     .populate({
       path: "comments",
-      select: "comment user",
+      select: "comment user createdAt",
     })
     .sort(timeSort);
   res
@@ -32,7 +32,15 @@ router.get("/", isAuth, async function (req, res, next) {
 // 取得個人的貼文
 router.get("/user/:id", isAuth, async function (req, res, next) {
   const user = req.params.id;
-  const posts = await Posts.find({ user });
+  const posts = await Posts.find({ user })
+    .populate({
+      path: "user",
+      select: "name gender avatar",
+    })
+    .populate({
+      path: "comments",
+      select: "comment user createdAt",
+    });
   res.status(200).json({ status: "success", posts });
 });
 
@@ -139,70 +147,6 @@ router.delete(
   })
 );
 
-//追蹤
-router.post(
-  "/:id/follow",
-  isAuth,
-  handleErrorAsync(async (req, res, next) => {
-    if (req.params.id === req.user._id) {
-      return next(appError(401, "您無法追蹤自己", next));
-    }
-    await User.updateOne(
-      {
-        _id: req.user._id,
-        "following.user": { $ne: req.params.id },
-      },
-      {
-        $addToSet: { following: { user: req.params.id } },
-      }
-    );
-    await User.updateOne(
-      {
-        _id: req.params.id,
-        "followers.user": { $ne: req.user._id },
-      },
-      {
-        $addToSet: { followers: { user: req.user._id } },
-      }
-    );
-
-    res.status(200).json({
-      status: "success",
-      message: "追蹤成功！",
-    });
-  })
-);
-
-// 退追蹤
-router.delete(
-  "/:id/unfollow",
-  isAuth,
-  handleErrorAsync(async (req, res, next) => {
-    if (req.params.id === req.user._id) {
-      return next(appError(401, "您無法取消追蹤自己", next));
-    }
-    await User.updateOne(
-      {
-        _id: req.user.id,
-      },
-      {
-        $pull: { following: { user: req.params.id } },
-      }
-    );
-    await User.updateOne(
-      {
-        _id: req.params.id,
-      },
-      {
-        $pull: { followers: { user: req.user._id } },
-      }
-    );
-    res.status(200).json({
-      status: "success",
-      message: "成功取消追蹤",
-    });
-  })
-);
 
 //新增留言
 router.post(

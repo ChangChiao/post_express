@@ -4,14 +4,18 @@ const commentSchema = new mongoose.Schema({
     type: String,
     required: [true, "留言不可以為空"],
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
   user: {
     type: mongoose.Schema.ObjectId,
-    ref: "user",
+    ref: "User",
     required: [true, "留言一定要有作者"],
   },
   post: {
     type: mongoose.Schema.ObjectId,
-    ref: "post",
+    ref: "Posts",
     required: [true, "留言一定要有對應文章"],
   },
 });
