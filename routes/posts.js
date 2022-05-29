@@ -6,6 +6,7 @@ const handleErrorAsync = require("../service/handleErrorAsync");
 const { isAuth } = require("../service/auth");
 const Posts = require("../models/postsModel");
 const User = require("../models/userModel");
+const Comment = require("../models/commentsModel");
 // 取得貼文列表
 router.get("/", isAuth, async function (req, res, next) {
   const timeSort = req.query.timeSort === "asc" ? "createdAt" : "-createdAt";
@@ -211,7 +212,10 @@ router.post(
     const user = req.user._id;
     const post = req.params.id;
     const { comment } = req.body;
-    const newComment = await Posts.create({
+    if (!comment) {
+      return next(appError(400, "留言不可以為空", next));
+    }
+    const newComment = await Comment.create({
       post,
       user,
       comment,

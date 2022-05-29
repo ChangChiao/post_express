@@ -16,13 +16,13 @@ const commentSchema = new mongoose.Schema({
   },
 });
 
-commentSchema.pre(/^find/, (next) => {
-    this.populate({
-        path: 'user',
-        select: 'name id avatar'
-    })
-    next();
+commentSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "user",
+    select: "name id avatar",
+  });
+  next();
 });
 
-const Comment = mongoose.model('Comment', commentSchema);
+const Comment = mongoose.model("Comment", commentSchema);
 module.exports = Comment;
