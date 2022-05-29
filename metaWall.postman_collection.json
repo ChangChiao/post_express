@@ -1,0 +1,599 @@
+{
+	"info": {
+		"_postman_id": "7595ef2b-c503-4432-9169-5bad8efd4a62",
+		"name": "metaWall",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "登入",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"email\":\"1234@gmail.com\",\"password\":\"test1122\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/users/sign_in",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"users",
+						"sign_in"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "註冊",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"name\":\"kk\",\"email\":\"kkk@gmail.com\",\"password\":\"test1122\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/users/sign_up",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"users",
+						"sign_up"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "重設密碼",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyOTM2YjU1M2NmNTU5NzVlNTRiNmU0NCIsImlhdCI6MTY1MzgyODkxNSwiZXhwIjoxNjU0NDMzNzE1fQ.b65ZH8KmdTg2cz1dYp99BCKppbPQC6exG7qwofJqLtA",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"password\":\"12345678\",\"confirmPassword\":\"12345678\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/users/update_password",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"users",
+						"update_password"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "取得個人資料",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyOTM2YjU1M2NmNTU5NzVlNTRiNmU0NCIsImlhdCI6MTY1MzgyODkxNSwiZXhwIjoxNjU0NDMzNzE1fQ.b65ZH8KmdTg2cz1dYp99BCKppbPQC6exG7qwofJqLtA",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": []
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/users/profile",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"users",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "更新個人資料",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyOTM2YjU1M2NmNTU5NzVlNTRiNmU0NCIsImlhdCI6MTY1MzgyODkxNSwiZXhwIjoxNjU0NDMzNzE1fQ.b65ZH8KmdTg2cz1dYp99BCKppbPQC6exG7qwofJqLtA",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"name\":\"靜香\",\"gender\":\"female\",\"avatar\":\"https://i.imgur.com/u3CvcAn.png\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/users/profile",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"users",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "取得所有貼文",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyOTM2YjU1M2NmNTU5NzVlNTRiNmU0NCIsImlhdCI6MTY1MzgyODkxNSwiZXhwIjoxNjU0NDMzNzE1fQ.b65ZH8KmdTg2cz1dYp99BCKppbPQC6exG7qwofJqLtA",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/posts",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"posts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "新增貼文",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyOTM2YjU1M2NmNTU5NzVlNTRiNmU0NCIsImlhdCI6MTY1MzgyODkxNSwiZXhwIjoxNjU0NDMzNzE1fQ.b65ZH8KmdTg2cz1dYp99BCKppbPQC6exG7qwofJqLtA",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"content\": \"hello!!!!\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/posts",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"posts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "取得單一貼文",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyOTM2YjU1M2NmNTU5NzVlNTRiNmU0NCIsImlhdCI6MTY1MzgyODkxNSwiZXhwIjoxNjU0NDMzNzE1fQ.b65ZH8KmdTg2cz1dYp99BCKppbPQC6exG7qwofJqLtA",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/posts/629370c33cf55975e54b6f41",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"posts",
+						"629370c33cf55975e54b6f41"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "新增一則貼文的讚",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyOTM2YjU1M2NmNTU5NzVlNTRiNmU0NCIsImlhdCI6MTY1MzgyODkxNSwiZXhwIjoxNjU0NDMzNzE1fQ.b65ZH8KmdTg2cz1dYp99BCKppbPQC6exG7qwofJqLtA",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/posts/6292eb9f86ef6cd79e52e777/likes",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"posts",
+						"6292eb9f86ef6cd79e52e777",
+						"likes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "取消一則貼文的讚",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyOTM2YjU1M2NmNTU5NzVlNTRiNmU0NCIsImlhdCI6MTY1MzgyODkxNSwiZXhwIjoxNjU0NDMzNzE1fQ.b65ZH8KmdTg2cz1dYp99BCKppbPQC6exG7qwofJqLtA",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": []
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/posts/6292eb9f86ef6cd79e52e777/unlikes",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"posts",
+						"6292eb9f86ef6cd79e52e777",
+						"unlikes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "新增一則貼文的留言",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyOTM2YjU1M2NmNTU5NzVlNTRiNmU0NCIsImlhdCI6MTY1MzgyODkxNSwiZXhwIjoxNjU0NDMzNzE1fQ.b65ZH8KmdTg2cz1dYp99BCKppbPQC6exG7qwofJqLtA",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"comment\": \"wewew1122\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/posts/6292eb9f86ef6cd79e52e777/comment",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"posts",
+						"6292eb9f86ef6cd79e52e777",
+						"comment"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "取得個人所有貼文列表",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyOTM2YjU1M2NmNTU5NzVlNTRiNmU0NCIsImlhdCI6MTY1MzgyODkxNSwiZXhwIjoxNjU0NDMzNzE1fQ.b65ZH8KmdTg2cz1dYp99BCKppbPQC6exG7qwofJqLtA",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": []
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/posts/user/628c3a476e56188da0aec6c7",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"posts",
+						"user",
+						"628c3a476e56188da0aec6c7"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "追蹤朋友",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyOTM2YjU1M2NmNTU5NzVlNTRiNmU0NCIsImlhdCI6MTY1MzgyODkxNSwiZXhwIjoxNjU0NDMzNzE1fQ.b65ZH8KmdTg2cz1dYp99BCKppbPQC6exG7qwofJqLtA",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"content\": \"wewew\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/users/628c3a476e56188da0aec6c7/follow",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"users",
+						"628c3a476e56188da0aec6c7",
+						"follow"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "取消追蹤朋友",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyOTM2YjU1M2NmNTU5NzVlNTRiNmU0NCIsImlhdCI6MTY1MzgyODkxNSwiZXhwIjoxNjU0NDMzNzE1fQ.b65ZH8KmdTg2cz1dYp99BCKppbPQC6exG7qwofJqLtA",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"content\": \"wewew\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/users/628c3a476e56188da0aec6c7/unfollow",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"users",
+						"628c3a476e56188da0aec6c7",
+						"unfollow"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "取得個人按讚列表",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyOTM2YjU1M2NmNTU5NzVlNTRiNmU0NCIsImlhdCI6MTY1MzgyODkxNSwiZXhwIjoxNjU0NDMzNzE1fQ.b65ZH8KmdTg2cz1dYp99BCKppbPQC6exG7qwofJqLtA",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/users/like_list",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"users",
+						"like_list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "取得個人追蹤名單",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyOTM2YjU1M2NmNTU5NzVlNTRiNmU0NCIsImlhdCI6MTY1MzgyODkxNSwiZXhwIjoxNjU0NDMzNzE1fQ.b65ZH8KmdTg2cz1dYp99BCKppbPQC6exG7qwofJqLtA",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": []
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/users/following",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"users",
+						"following"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "上傳圖片",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyOTM2YjU1M2NmNTU5NzVlNTRiNmU0NCIsImlhdCI6MTY1MzgyODkxNSwiZXhwIjoxNjU0NDMzNzE1fQ.b65ZH8KmdTg2cz1dYp99BCKppbPQC6exG7qwofJqLtA",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/Users/changchiao-ting/Downloads/code.png"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://warm-stream-37441.herokuapp.com/upload",
+					"protocol": "https",
+					"host": [
+						"warm-stream-37441",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"upload"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
