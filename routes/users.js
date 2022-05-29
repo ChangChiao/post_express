@@ -10,7 +10,7 @@ const User = require("../models/userModel");
 const Posts = require("../models/postsModel");
 
 router.post(
-  "/sign-up",
+  "/sign_up",
   handleErrorAsync(async (req, res, next) => {
     const { email, password, name } = req.body;
     if (!email || !password || !name) {
@@ -20,8 +20,16 @@ router.post(
     //   return next(appError(400, "密碼不一致", next));
     // }
 
+    if (!validator.isLength(name, { min: 2 })) {
+      return next(appError(400, "暱稱不得少於兩個字元", next));
+    }
     if (!validator.isLength(password, { min: 8 })) {
       return next(appError(400, "密碼長度不得少於8碼", next));
+    }
+    if (
+      !validator.matches(password, /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z0-9]{8,20}$/)
+    ) {
+      return next(appError(400, "密碼必須為英數混合", next));
     }
 
     if (!validator.isEmail(email)) {
@@ -42,7 +50,7 @@ router.post(
 );
 
 router.post(
-  "/sign-in",
+  "/sign_in",
   handleErrorAsync(async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -61,13 +69,18 @@ router.post(
   })
 );
 
-router.post(
+router.patch(
   "/update_password",
   isAuth,
   handleErrorAsync(async (req, res, next) => {
     const { password, confirmPassword } = req.body;
     if (password !== confirmPassword) {
       return next(appError(400, "密碼不一致", next));
+    }
+    if (
+      !validator.matches(password, /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z0-9]{8,20}$/)
+    ) {
+      return next(appError(400, "密碼必須為英數混合", next));
     }
     newPassword = await bcrypt.hash(password, 12);
     const user = await User.findByIdAndUpdate(req.user.id, {
@@ -102,7 +115,7 @@ router.patch(
     const updateUser = await User.findByIdAndUpdate(
       req.user._id,
       { name, gender, avatar },
-      { new: true }
+      { new: true, runValidators: true }
     );
     res.status(200).json({
       status: "success",
@@ -111,6 +124,9 @@ router.patch(
     const { password, confirmPassword } = req.body;
     if (password !== confirmPassword) {
       return next(appError(400, "密碼不一致", next));
+    }
+    if (!validator.isLength(name, { min: 2 })) {
+      return next(appError(400, "暱稱不得少於兩個字元", next));
     }
     newPassword = await bcrypt.hash(password, 12);
     const user = await User.findByIdAndUpdate(req.user.id, {
@@ -122,7 +138,7 @@ router.patch(
 
 //取得按讚列表
 router.get(
-  "/like-list",
+  "/like_list",
   isAuth,
   handleErrorAsync(async (req, res, next) => {
     const likeList = await Posts.find({

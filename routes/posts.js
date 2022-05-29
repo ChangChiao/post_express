@@ -8,41 +8,59 @@ const Posts = require("../models/postsModel");
 const User = require("../models/userModel");
 const Comment = require("../models/commentsModel");
 // 取得貼文列表
-router.get("/", isAuth, async function (req, res, next) {
-  const timeSort = req.query.timeSort === "asc" ? "createdAt" : "-createdAt";
-  const keyword =
-    req.query.keyword !== undefined
-      ? { content: new RegExp(req.query.keyword) }
-      : {};
-  const postList = await Posts.find(keyword)
-    .populate({
-      path: "user",
-      select: "name gender avatar",
-    })
-    .populate({
-      path: "comments",
-      select: "comment user createdAt",
-    })
-    .sort(timeSort);
-  res
-    .status(200)
-    .json({ message: "success", status: "success", posts: postList });
-});
+router.get(
+  "/",
+  isAuth,
+  handleErrorAsync(async function (req, res, next) {
+    const timeSort = req.query.timeSort === "asc" ? "createdAt" : "-createdAt";
+    const keyword =
+      req.query.keyword !== undefined
+        ? { content: new RegExp(req.query.keyword) }
+        : {};
+    const postList = await Posts.find(keyword)
+      .populate({
+        path: "user",
+        select: "name gender avatar",
+      })
+      .populate({
+        path: "comments",
+        select: "comment user createdAt",
+      })
+      .sort(timeSort);
+    res
+      .status(200)
+      .json({ message: "success", status: "success", posts: postList });
+  })
+);
 
 // 取得個人的貼文
-router.get("/user/:id", isAuth, async function (req, res, next) {
-  const user = req.params.id;
-  const posts = await Posts.find({ user })
-    .populate({
-      path: "user",
-      select: "name gender avatar",
-    })
-    .populate({
-      path: "comments",
-      select: "comment user createdAt",
-    });
-  res.status(200).json({ status: "success", posts });
-});
+router.get(
+  "/user/:id",
+  isAuth,
+  handleErrorAsync(async (req, res, next) => {
+    const user = req.params.id;
+    const posts = await Posts.find({ user })
+      .populate({
+        path: "user",
+        select: "name gender avatar",
+      })
+      .populate({
+        path: "comments",
+        select: "comment user createdAt",
+      });
+    res.status(200).json({ status: "success", posts });
+  })
+);
+
+router.get(
+  "/:id",
+  isAuth,
+  handleErrorAsync(async (req, res, next) => {
+    const _id = req.params.id;
+    const post = await Posts.findById(_id);
+    res.status(200).json({ status: "success", post });
+  })
+);
 
 const checkAddParam = handleErrorAsync(async (req, res, next) => {
   const { content, user } = req.body;
@@ -75,12 +93,6 @@ router.post(
       .json({ message: "success", status: "success", posts: newPost });
   })
 );
-
-const checkReviseParam = handleErrorAsync(async (req, res, next) => {
-  if (user === undefined || content === undefined) {
-    return next(appError(400, "參數有缺", next));
-  }
-});
 
 //修改貼文
 router.patch(
@@ -129,7 +141,7 @@ router.post(
 
 //取消讚
 router.delete(
-  "/:id/likes",
+  "/:id/unlikes",
   isAuth,
   handleErrorAsync(async (req, res, next) => {
     const id = req.params.id;
@@ -146,7 +158,6 @@ router.delete(
     });
   })
 );
-
 
 //新增留言
 router.post(
