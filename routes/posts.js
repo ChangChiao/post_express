@@ -205,7 +205,8 @@ router.delete(
 
 //新增留言
 router.post(
-  "/:id/comment".isAuth,
+  "/:id/comment",
+  isAuth,
   handleErrorAsync(async (req, res, next) => {
     const user = req.user._id;
     const post = req.params.id;

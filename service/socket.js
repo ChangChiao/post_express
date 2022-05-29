@@ -48,7 +48,7 @@ module.exports = function (server) {
     // console.log('io.sockets.adapter.rooms.has(roomIdentifier)', io.of('/chat').adapter.rooms.has('62863bf54025f20e3d376b34'));
     console.log("clients", clients);
 
-    socket.use(([ event, payload ], next) => {
+    socket.use(([event, payload], next) => {
       console.log("payload", payload);
       if (payload?.message?.length > 100) {
         return next(new Error("您輸入的內容過長"));
@@ -69,6 +69,10 @@ module.exports = function (server) {
         .emit("chatMessage", { message, sender: userId, createdAt });
       console.log("userInfo", room, userId);
       console.log(`傳來的訊息`, msg);
+    });
+    //使用者輸入中
+    socket.on("typing", (boolean) => {
+      socket.broadcast.in(room).emit("typing", boolean);
     });
     //歷史訊息
     socket.on("history", async (info) => {
