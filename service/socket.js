@@ -12,7 +12,7 @@ module.exports = function (server) {
 
   //驗證token
   io.use((socket, next) => {
-    const token = socket.handshake.query?.token;
+    const token = socket.handshake.auth?.token;
     if (!token) {
       return next(new Error("請重新登入"));
     }
@@ -36,7 +36,7 @@ module.exports = function (server) {
   //建立連接
   io.of("/chat").on("connection", async (socket) => {
     const room = socket.handshake.query?.room;
-    const token = socket.handshake.query?.token;
+    const token = socket.handshake.auth?.token;
     console.log("connection----", room);
     room && socket.join(room);
     let userId = await getUserId(token);
@@ -55,6 +55,8 @@ module.exports = function (server) {
       }
       next();
     });
+
+    soc
 
     // 監聽 client發來的訊息
     socket.on("chatMessage", async (msg) => {
