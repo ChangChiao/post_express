@@ -33,6 +33,46 @@ module.exports = function (server) {
     return currentUser?._id;
   };
 
+  const getHistory = async (room, lastTime) => {
+    let msgList = [];
+    if (lastTime) {
+      const [queryResult] = await ChatRoom.aggregate([
+        { $match: { $expr: { $eq: ['$_id', { $toObjectId: room }] } } },
+        {
+          $project: {
+            messages: 1,
+          },
+        },
+        {
+          $project: {
+            messages: {
+              $slice: [
+                {
+                  $filter: {
+                    input: '$messages',
+                    as: 'item',
+                    cond: {
+                      $lt: ['$$item.createdAt', new Date(lastTime)],
+                    },
+                  },
+                },
+                30,
+              ],
+            },
+          },
+        },
+      ]);
+      msgList = queryResult.messages;
+    } else {
+      msgList = await ChatRoom.find(
+        { _id: room },
+        { messages: { $slice: -30 } },
+      );
+      msgList = msgList[0]?.messages;
+    }
+    return msgList;
+  };
+
   //建立連接
   io.of("/chat").on("connection", async (socket) => {
     const room = socket.handshake.query?.room;
@@ -47,6 +87,9 @@ module.exports = function (server) {
     // console.log('io.sockets.adapter.rooms', io.of('/chat').adapter.rooms);
     // console.log('io.sockets.adapter.rooms.has(roomIdentifier)', io.of('/chat').adapter.rooms.has('62863bf54025f20e3d376b34'));
     console.log("clients", clients);
+    
+    const msgList = await getHistory(room);
+    socket.emit('history', msgList);
 
     socket.use(([event, payload], next) => {
       console.log("payload", payload);
@@ -55,8 +98,6 @@ module.exports = function (server) {
       }
       next();
     });
-
-    soc
 
     // 監聽 client發來的訊息
     socket.on("chatMessage", async (msg) => {
@@ -78,60 +119,9 @@ module.exports = function (server) {
     });
     //歷史訊息
     socket.on("history", async (info) => {
-      console.log("history", info, room);
       const { lastTime } = info;
-      let msgList = [];
-      if (lastTime) {
-        console.log("lastTime", lastTime);
-        const [queryResult] = await ChatRoom.aggregate([
-          { $match: { $expr: { $eq: ["$_id", { $toObjectId: room }] } } },
-          {
-            $project: {
-              messages: 1,
-            },
-          },
-          {
-            $project: {
-              messages: {
-                $slice: [
-                  {
-                    $filter: {
-                      input: "$messages",
-                      as: "item",
-                      cond: {
-                        $lt: ["$$item.createdAt", new Date(lastTime)],
-                        // $eq: ["$$item.sender", "62833a81d3692f15d21af56d"],
-                      },
-                    },
-                  },
-                  30,
-                ],
-              },
-            },
-          },
-        ]);
-        msgList = queryResult.messages;
-        // msgList = await ChatRoom.find({_id: room}, {messages: {$elemMatch: {'createdAt': { $lt: new Date("2022-05-21T06:35:59.839Z") }}}})
-        // msgList = await ChatRoom.findById(room).where('messages', {$elemMatch: {'createdAt': { $lt: new Date("2022-05-21T06:35:59.839Z") }}})
-        // console.log("msgList", msgList);
-        // msgList = await ChatRoom.find(
-        //   {
-        //     _id: room,
-        //   },
-        //   {
-        //     messages: {
-        //       $elemMatch: { 'sender': "62834466572c43bf1eb3058b" },
-        //     },
-        //   })
-        // ).elemMatch('messages', {sender: '62834466572c43bf1eb3058b'});
-      } else {
-        msgList = await ChatRoom.find(
-          { _id: room },
-          { messages: { $slice: -30 } }
-        );
-        msgList = msgList[0]?.messages;
-      }
-      socket.emit("history", msgList);
+      const historyMsgList = await getHistory(room, lastTime);
+      socket.emit('history', historyMsgList);
     });
     socket.on("leaveRoom", (room) => {
       console.log("leaveRoom~~~", room);
