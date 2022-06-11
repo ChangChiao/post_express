@@ -25,14 +25,12 @@ router.post(
       return next(appError(400, "沒有這個人喔", next));
     }
     const queryResult = await User.findById(sender).select("chatRecord");
-    console.log("queryResult", queryResult);
     const { receiver: receiverRecord, roomId } =
       queryResult?.chatRecord.find(
         (item) => item.receiver.toString() === receiver
       ) || {};
     const { name, avatar, _id } = receiverUser;
     //已經有聊天記錄就直接回傳id
-    console.log("receiverRecord", receiverRecord);
     if (receiverRecord) {
       res.status(200).json({
         status: "success",
@@ -102,7 +100,7 @@ router.get("/all", async (req, res, next) => {
 });
 
 //取得聊天記錄
-router.post(
+router.get(
   "/chat-record",
   isAuth,
   handleErrorAsync(async (req, res, next) => {
