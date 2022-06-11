@@ -2,6 +2,8 @@ const { Server } = require("socket.io");
 const jwt = require("jsonwebtoken");
 const ChatRoom = require("../models/chatRoomModel");
 const User = require("../models/userModel");
+const appError = require("./appError");
+const handleErrorAsync = require("./handleErrorAsync");
 module.exports = function (server) {
   const io = new Server(server, {
     path: "/socket.io/",
@@ -16,6 +18,7 @@ module.exports = function (server) {
     if (!token) {
       return next(new Error("請重新登入"));
     }
+
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
       if (err) return next(new Error("請重新登入"));
       socket.decoded = decoded;
@@ -24,20 +27,26 @@ module.exports = function (server) {
   });
 
   const getUserId = async (token) => {
-    const decodedToken = await new Promise((resolve, reject) => {
-      jwt.verify(token, process.env.JWT_SECRET, (error, payload) => {
-        error ? reject(error) : resolve(payload);
+    try {
+      const decodedToken = await new Promise((resolve, reject) => {
+        jwt.verify(token, process.env.JWT_SECRET, (error, payload) => {
+          error ? reject(error) : resolve(payload);
+        });
       });
-    });
-    const currentUser = await User.findById(decodedToken.id);
-    return currentUser?._id;
+      const currentUser = await User.findById(decodedToken.id);
+      return currentUser?._id;
+    } catch (err) {
+      const error = new Error("未授權");
+      error.statusCode = 401;
+      return error;
+    }
   };
 
   const getHistory = async (room, lastTime) => {
     let msgList = [];
     if (lastTime) {
       const [queryResult] = await ChatRoom.aggregate([
-        { $match: { $expr: { $eq: ['$_id', { $toObjectId: room }] } } },
+        { $match: { $expr: { $eq: ["$_id", { $toObjectId: room }] } } },
         {
           $project: {
             messages: 1,
@@ -49,10 +58,10 @@ module.exports = function (server) {
               $slice: [
                 {
                   $filter: {
-                    input: '$messages',
-                    as: 'item',
+                    input: "$messages",
+                    as: "item",
                     cond: {
-                      $lt: ['$$item.createdAt', new Date(lastTime)],
+                      $lt: ["$$item.createdAt", new Date(lastTime)],
                     },
                   },
                 },
@@ -66,7 +75,7 @@ module.exports = function (server) {
     } else {
       msgList = await ChatRoom.find(
         { _id: room },
-        { messages: { $slice: -30 } },
+        { messages: { $slice: -30 } }
       );
       msgList = msgList[0]?.messages;
     }
@@ -79,17 +88,25 @@ module.exports = function (server) {
     const token = socket.handshake.auth?.token;
     console.log("connection----", room);
     room && socket.join(room);
-    let userId = await getUserId(token);
-    userId = userId.toString();
+    let userId = "";
+    socket.use(async ([event, payload], next) => {
+      try {
+        userId = await getUserId(token);
+        userId = userId.toString();
+        next();
+      } catch (error) {
+        next(error);
+      }
+    });
     const clients = io
       .of("/chat")
       .adapter.rooms.get("62863bf54025f20e3d376b34");
     // console.log('io.sockets.adapter.rooms', io.of('/chat').adapter.rooms);
     // console.log('io.sockets.adapter.rooms.has(roomIdentifier)', io.of('/chat').adapter.rooms.has('62863bf54025f20e3d376b34'));
     console.log("clients", clients);
-    
+
     const msgList = await getHistory(room);
-    socket.emit('history', msgList);
+    socket.emit("history", msgList);
 
     socket.use(([event, payload], next) => {
       console.log("payload", payload);
@@ -121,7 +138,7 @@ module.exports = function (server) {
     socket.on("history", async (info) => {
       const { lastTime } = info;
       const historyMsgList = await getHistory(room, lastTime);
-      socket.emit('history', historyMsgList);
+      socket.emit("history", historyMsgList);
     });
     socket.on("leaveRoom", (room) => {
       console.log("leaveRoom~~~", room);

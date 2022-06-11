@@ -17,7 +17,7 @@ const isAuth = handleErrorAsync(async (req, res, next) => {
   //check jwt is valid
   const decodedToken = await new Promise((resolve, reject) => {
     jwt.verify(token, process.env.JWT_SECRET, (error, payload) => {
-      error ? reject(error) : resolve(payload);
+      error ? reject(appError(401, '未授權', next)) : resolve(payload);
     });
   });
   if (decodedToken) {
