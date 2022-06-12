@@ -39,6 +39,10 @@ router.get(
   isAuth,
   handleErrorAsync(async (req, res, next) => {
     const user = req.params.id;
+    const userExist = await User.findById(user).exec();
+    if (!userExist) {
+      return next(appError(400, "沒有這個使用者喔", next));
+    }
     const posts = await Posts.find({ user })
       .populate({
         path: "user",
@@ -64,6 +68,7 @@ router.get(
 
 const checkAddParam = handleErrorAsync(async (req, res, next) => {
   const { content, user } = req.body;
+  content && content.trim();
   if (content === undefined) {
     return next(appError(400, "參數有缺", next));
   }
@@ -82,6 +87,7 @@ router.post(
     if (!checkUser) {
       return next(appError(400, "使用者不存在", next));
     }
+    content && content.trim();
     const newPost = await Posts.create({
       content,
       image,
@@ -102,9 +108,12 @@ router.patch(
     const { name, content } = req.body;
     if (name === undefined || content === undefined) {
       return next(appError(400, "參數有缺", next));
-      // res.status(400).json({ message: "參數有缺", status: "fail" });
-      // return;
     }
+    const userExist = await User.findById(user).exec();
+    if (!userExist) {
+      return next(appError(400, "沒有這個使用者喔", next));
+    }
+    content && content.trim();
     const target = await Posts.findByIdAndUpdate(
       id,
       { name, content },
@@ -125,6 +134,10 @@ router.post(
   isAuth,
   handleErrorAsync(async (req, res, next) => {
     const id = req.params.id;
+    const userExist = await User.findById(id).exec();
+    if (!userExist) {
+      return next(appError(400, "沒有這個使用者喔", next));
+    }
     await Posts.findByIdAndUpdate(
       { _id: id },
       {
@@ -145,6 +158,10 @@ router.delete(
   isAuth,
   handleErrorAsync(async (req, res, next) => {
     const id = req.params.id;
+    const userExist = await User.findById(id).exec();
+    if (!userExist) {
+      return next(appError(400, "沒有這個使用者喔", next));
+    }
     await Posts.findByIdAndUpdate(
       { _id: id },
       {
@@ -166,6 +183,10 @@ router.post(
   handleErrorAsync(async (req, res, next) => {
     const user = req.user._id;
     const post = req.params.id;
+    const userExist = await User.findById(user).exec();
+    if (!userExist) {
+      return next(appError(400, "沒有這個使用者喔", next));
+    }
     const { comment } = req.body;
     if (!comment) {
       return next(appError(400, "留言不可以為空", next));

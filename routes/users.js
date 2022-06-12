@@ -210,7 +210,11 @@ router.post(
   isAuth,
   handleErrorAsync(async (req, res, next) => {
     if (req.params.id === req.user._id) {
-      return next(appError(401, "您無法追蹤自己", next));
+      return next(appError(400, "您無法追蹤自己", next));
+    }
+    const userExist = await User.findById(req.params.id).exec();
+    if(!userExist){
+      return next(appError(400, "沒有這個使用者喔", next));
     }
     await User.updateOne(
       {
@@ -244,7 +248,11 @@ router.delete(
   isAuth,
   handleErrorAsync(async (req, res, next) => {
     if (req.params.id === req.user._id) {
-      return next(appError(401, "您無法取消追蹤自己", next));
+      return next(appError(400, "您無法取消追蹤自己", next));
+    }
+    const userExist = await User.findById(req.params.id).exec();
+    if(!userExist){
+      return next(appError(400, "沒有這個使用者喔", next));
     }
     await User.updateOne(
       {
